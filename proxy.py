@@ -2,6 +2,7 @@ from flask import Flask, abort, request
 from flask_restplus import Api, Resource, fields
 from exchange.calendarModel import CalendarField, ConversationId, EffectiveRights, Mailbox, Attendee, CalendarItem, Calendar
 from exchange.utils import GetEvents
+#import json
 
 app = Flask(__name__)
 api = Api(app, version='1.0', title='Exchange Resource Proxy',

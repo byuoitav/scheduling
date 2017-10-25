@@ -19,3 +19,5 @@ exchange/__pycache__
 exchange/tmp*
 docker
 .DS_Store
+
+__pycache__
