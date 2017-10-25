@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, abort, request
 from flask_restplus import Api, Resource, fields
 from calendarModel import CalendarField, ConversationId, EffectiveRights, Mailbox, Attendee, CalendarItem, Calendar
 from utils import GetEvents
@@ -49,7 +49,7 @@ def convertDstTzInfo(string):
 
 
 root = api.namespace('', description='')
-calns = api.namespace('calendar', description='Calendar operations')
+calns_v1_0 = api.namespace('v1.0/calendar/', description='Calendar operations')
 
 cal = api.model('calendar', {
     '_end_timezone': fields.String(required=True, readOnly=False, description=""),
@@ -127,23 +127,23 @@ class CalendarDAO(object):
 
 DAO = CalendarDAO()
 
-@calns.route('/events')
+@calns_v1_0.route('/events')
 class EventList(Resource):
     '''Shows a list all events'''
-    @calns.doc('list_events')
-    @calns.marshal_list_with(cal)
+    @calns_v1_0.doc('list_events')
+    @calns_v1_0.marshal_list_with(cal)
     def get(self):
         '''List all events'''
         return DAO.refresh()
 
 
-@calns.route('/events/<int:id>')
-@calns.response(404, 'Event not found')
-@calns.param('id', 'The task identifier')
+@calns_v1_0.route('/events/<int:id>')
+@calns_v1_0.response(404, 'Event not found')
+@calns_v1_0.param('id', 'The task identifier')
 class Event(Resource):
     '''Show a single event'''
-    @calns.doc('get_event')
-    @calns.marshal_with(cal)
+    @calns_v1_0.doc('get_event')
+    @calns_v1_0.marshal_with(cal)
     def get(self, id):
         '''Fetch a given resource'''
         return DAO.get(id)
