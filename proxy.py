@@ -1,10 +1,12 @@
 from flask import Flask, abort, request
+from flask_cors import CORS
 from flask_restplus import Api, Resource, fields
 from exchange.calendarModel import CalendarField, ConversationId, EffectiveRights, Mailbox, Attendee, CalendarItem, Calendar
 from exchange.utils import GetEvents
 #import json
 
 app = Flask(__name__)
+CORS(app)
 api = Api(app, version='1.0', title='Exchange Resource Proxy',
     description='Proxy for exchange calendar resources',
 )
