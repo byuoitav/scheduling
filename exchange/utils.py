@@ -1,5 +1,4 @@
 import os
-
 #from datetime import datetime, timedelta
 import datetime
 from exchangelib import DELEGATE, IMPERSONATION, Account, Credentials, ServiceAccount, EWSDateTime, EWSTimeZone, Configuration, NTLM, CalendarItem, Message, Mailbox, Attendee, Q, ExtendedProperty, FileAttachment, ItemAttachment, HTMLBody, Build, Version
@@ -25,8 +24,6 @@ def GetEvents():
     ## Get reference date objects. "today" first gets the date object, then sets it to beginning of day.
     today = datetime.date.today()
     tomorrow = datetime.date.today() + datetime.timedelta(days=1)
-    #today = EWSDateTime(today.year, today.month, today.day)
-    #tomorrow = EWSDateTime(today.year, today.month, today.day + 1)
 
     ## Get Calendar Items
     dayEventsView = account.calendar.view(start=tz.localize(EWSDateTime(today.year, today.month, today.day)),end=tz.localize(EWSDateTime(tomorrow.year, tomorrow.month, tomorrow.day)))

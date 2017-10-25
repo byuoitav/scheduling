@@ -18,40 +18,6 @@ def convertDstTzInfo(string):
   tmp.replace(">","\"")
   tmp.replace("DstTzInfo","")
 
-#class CalendarField:
-#  'name': fields.String(required=True, readOnly=False, description="")
-#  'value_class': fields.String(required=True, readOnly=False, description="")
-#  'is_list': fields.Boolean()
-#  'is_complex': fields.Boolean()
-#  'default': fields.String(required=True, readOnly=False, description="")
-#
-#class ConversationId:
-#  'id': fields.String(required=True, readOnly=False, description="")
-#  'changekey': fields.String(required=True, readOnly=False, description="")
-#
-#class EffectiveRights:
-#  'create_associated': fields.Boolean(required=True, readOnly=False, description="")
-#  'create_contents': fields.Boolean(required=True, readOnly=False, description="")
-#  'create_hierarchy': fields.Boolean(required=True, readOnly=False, description="")
-#  'delete': fields.Boolean(required=True, readOnly=False, description="")
-#  'modify': fields.Boolean(required=True, readOnly=False, description="")
-#  'read': fields.Boolean(required=True, readOnly=False, description="")
-#  'view_private_items': fields.Boolean(required=True, readOnly=False, description="")
-#
-#class Mailbox:
-#  'name': fields.String(required=True, readOnly=False, description="")
-#  'email_address': fields.String(required=True, readOnly=False, description="")
-#  'mailbox_type': fields.String(required=True, readOnly=False, description="")
-#  'item_id': fields.String(required=True, readOnly=False, description="")
-#
-#class Attendee:
-#  'mailbox': fields.ClassName("Mailbox")
-#  'response_type': fields.String(required=True, readOnly=False, description="")
-#  'last_response_time': fields.DateTime(required=True, readOnly=False, description="")
-#
-#
-
-
 root = api.namespace('v1.0', description='')
 calns_v1_0 = api.namespace('v1.0/calendar/', description='Calendar operations')
 
