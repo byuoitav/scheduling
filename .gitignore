@@ -12,3 +12,9 @@
 
 # Project-local glide cache, RE: https://github.com/Masterminds/glide/issues/736
 .glide/
+
+env
+exchange_old
+exchange/__pycache__
+exchange/tmp*
+docker

@@ -8,6 +8,10 @@ api = Api(app, version='1.0', title='Exchange Resource Proxy',
     description='Proxy for exchange calendar resources',
 )
 
+## TODO: Implement HATEOAS
+
+## TODO: Fix swagger demo representation
+
 def convertDstTzInfo(string):
   tmp=string
   tmp.replace("<","\"")
@@ -48,7 +52,7 @@ def convertDstTzInfo(string):
 #
 
 
-root = api.namespace('', description='')
+root = api.namespace('v1.0', description='')
 calns_v1_0 = api.namespace('v1.0/calendar/', description='Calendar operations')
 
 cal = api.model('calendar', {
