@@ -18,3 +18,4 @@ exchange_old
 exchange/__pycache__
 exchange/tmp*
 docker
+.DS_Store
