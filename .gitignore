@@ -21,3 +21,6 @@ docker
 .DS_Store
 
 __pycache__
+
+#sqlite
+scheduler.db
