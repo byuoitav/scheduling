@@ -96,6 +96,10 @@ class CalendarDAO(object):
       retVal = GetEvents()
       return retVal
 
+    def createEvent(subject,start,end):
+      retVal = CreateCalendarEvent(subject,start,end)
+      return retVal
+
 
 
 DAO = CalendarDAO()
@@ -108,6 +112,9 @@ class EventList(Resource):
     def get(self):
         '''List all events'''
         return DAO.refresh()
+    def post(self,subject,start,end):
+        ''' Create an event '''
+        return DAO.createEvent(subject,start,end)
 
 
 @calns_v1_0.route('/events/<int:id>')
