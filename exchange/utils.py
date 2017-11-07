@@ -1,6 +1,5 @@
 import os
-#from datetime import datetime, timedelta
-from datetime import datetime
+from datetime import date, datetime, timedelta
 from dateutil.parser import parse
 from exchangelib import DELEGATE, IMPERSONATION, Account, Credentials, ServiceAccount, EWSDateTime, EWSTimeZone, Configuration, NTLM, CalendarItem, Message, Mailbox, Attendee, Q, ExtendedProperty, FileAttachment, ItemAttachment, HTMLBody, Build, Version
 
@@ -23,8 +22,8 @@ def GetEvents():
     tz = EWSTimeZone.timezone('America/Denver')
 
     ## Get reference date objects. "today" first gets the date object, then sets it to beginning of day.
-    today = datetime.date.today()
-    tomorrow = datetime.date.today() + datetime.timedelta(days=1)
+    today = date.today()
+    tomorrow = date.today() + timedelta(days=1)
 
     ## Get Calendar Items
     dayEventsView = account.calendar.view(start=tz.localize(EWSDateTime(today.year, today.month, today.day)),end=tz.localize(EWSDateTime(tomorrow.year, tomorrow.month, tomorrow.day)))
@@ -129,7 +128,7 @@ def CreateCalendarEvent(subject,start,end):
     ## Get reference date objects
     startDate = datetime.strptime(start,"%Y-%m-%dT%H:%M:%S")
     endDate = datetime.strptime(end,"%Y-%m-%dT%H:%M:%S")
-    tomorrow = datetime.date.today() + datetime.timedelta(days=1)
+    tomorrow = date.today() + timedelta(days=1)
 
     item = CalendarItem(
         folder=account.calendar,

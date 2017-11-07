@@ -1,8 +1,9 @@
 from flask import Flask, abort, request
+from flask.views import MethodView
 from flask_cors import CORS
 from flask_restplus import Api, Resource, fields
 from exchange.calendarModel import CalendarField, ConversationId, EffectiveRights, Mailbox, Attendee, CalendarItem, Calendar
-from exchange.utils import GetEvents
+from exchange.utils import GetEvents, CreateCalendarEvent
 #import json
 
 app = Flask(__name__)
@@ -24,61 +25,119 @@ def convertDstTzInfo(string):
 root = api.namespace('v1.0', description='')
 calns_v1_0 = api.namespace('v1.0/exchange/calendar/', description='Calendar operations')
 
-cal = api.model('calendar', {
-    '_end_timezone': fields.String(required=True, readOnly=False, description=""),
-    '_start_timezone': fields.String(required=True, readOnly=False, description=""),
-    'adjacent_meeting_count': fields.Integer(required=True, readOnly=False, description=""),
-    'allow_new_time_proposal': fields.Boolean(required=True, readOnly=False, description=""),
-    'appointment_reply_time': fields.DateTime(required=True, readOnly=False, description=""),
-    'appointment_sequence_number': fields.Integer(required=True, readOnly=False, description=""),
-    #'attachments': fields.List(),
-    'body': fields.String(required=True, readOnly=False, description=""),
-    'changekey': fields.String(required=True, readOnly=False, description=""),
-    'conference_type': fields.Integer(required=True, readOnly=False, description=""),
-    'conflicting_meeting_count': fields.Integer(required=True, readOnly=False, description=""),
-    #'conversation_id': fields.ClassName("ConversationId"),
-    'culture': fields.String(required=True, readOnly=False, description=""),
-    'datetime_created': fields.DateTime(required=True, readOnly=False, description=""),
-    'datetime_received': fields.DateTime(required=True, readOnly=False, description=""),
-    'datetime_sent': fields.DateTime(required=True, readOnly=False, description=""),
-    'display_to': fields.String(required=True, readOnly=False, description=""),
-    'duration': fields.String(required=True, readOnly=False, description=""),
-    #'effective_rights': fields.List(fields.ClassName("EffectiveRights")),
-    'end': fields.DateTime(required=True, readOnly=False, description=""),
-    'has_attachments': fields.Boolean(required=True, readOnly=False, description=""),
-    'importance': fields.String(required=True, readOnly=False, description=""),
-    'is_all_day': fields.Boolean(required=True, readOnly=False, description=""),
-    'is_associated': fields.Boolean(required=True, readOnly=False, description=""),
-    'is_cancelled': fields.Boolean(required=True, readOnly=False, description=""),
-    'is_draft': fields.Boolean(required=True, readOnly=False, description=""),
-    'is_from_me': fields.Boolean(required=True, readOnly=False, description=""),
-    'is_meeting': fields.Boolean(required=True, readOnly=False, description=""),
-    'is_recurring': fields.Boolean(required=True, readOnly=False, description=""),
-    'is_resend': fields.Boolean(required=True, readOnly=False, description=""),
-    'is_response_requested': fields.Boolean(required=True, readOnly=False, description=""),
-    'is_submitted': fields.Boolean(required=True, readOnly=False, description=""),
-    'is_unmodified': fields.Boolean(required=True, readOnly=False, description=""),
-    'item_class': fields.String(required=True, readOnly=False, description=""),
-    'item_id': fields.String(required=True, readOnly=False, description=""),
-    'last_modified_name': fields.String(required=True, readOnly=False, description=""),
-    'last_modified_time': fields.DateTime(required=True, readOnly=False, description=""),
-    'legacy_free_busy_status': fields.String(required=True, readOnly=False, description=""),
-    'location': fields.String(required=True, readOnly=False, description=""),
-    'meeting_request_was_sent': fields.Boolean(required=True, readOnly=False, description=""),
-    'mime_content': fields.String(required=True, readOnly=False, description=""),
-    'my_response_type': fields.String(required=True, readOnly=False, description=""),
-    #'organizer': fields.ClassName("Mailbox"),
-    'reminder_due_by': fields.DateTime(required=True, readOnly=False, description=""),
-    'reminder_is_set': fields.Boolean(required=True, readOnly=False, description=""),
-    'reminder_minutes_before_start': fields.Integer(required=True, readOnly=False, description=""),
-    #'required_attendees': fields.List(fields.ClassName("Attendee")),
-    'sensitivity': fields.String(required=True, readOnly=False, description=""),
-    'size': fields.Integer(required=True, readOnly=False, description=""),
-    'start': fields.DateTime(required=True, readOnly=False, description=""),
-    'subject': fields.String(required=True, readOnly=False, description=""),
-    'text_body': fields.String(required=True, readOnly=False, description=""),
-    'type': fields.String(required=True, readOnly=False, description=""),
-    'uid': fields.String(required=True, readOnly=False, description="")
+#cal = api.model('calendar', {
+#    '_end_timezone': fields.String(required=False, readOnly=False, description=""),
+#    '_start_timezone': fields.String(required=False, readOnly=False, description=""),
+#    'adjacent_meeting_count': fields.Integer(required=False, readOnly=False, description=""),
+#    'allow_new_time_proposal': fields.Boolean(required=False, readOnly=False, description=""),
+#    'appointment_reply_time': fields.DateTime(required=False, readOnly=False, description=""),
+#    'appointment_sequence_number': fields.Integer(required=False, readOnly=False, description=""),
+#    #'attachments': fields.List(),
+#    'body': fields.String(required=False, readOnly=False, description=""),
+#    'changekey': fields.String(required=False, readOnly=False, description=""),
+#    'conference_type': fields.Integer(required=False, readOnly=False, description=""),
+#    'conflicting_meeting_count': fields.Integer(required=False, readOnly=False, description=""),
+#    #'conversation_id': fields.ClassName("ConversationId"),
+#    'culture': fields.String(required=False, readOnly=False, description=""),
+#    'datetime_created': fields.DateTime(required=False, readOnly=False, description=""),
+#    'datetime_received': fields.DateTime(required=False, readOnly=False, description=""),
+#    'datetime_sent': fields.DateTime(required=False, readOnly=False, description=""),
+#    'display_to': fields.String(required=False, readOnly=False, description=""),
+#    'duration': fields.String(required=False, readOnly=False, description=""),
+#    #'effective_rights': fields.List(fields.ClassName("EffectiveRights")),
+#    'end': fields.DateTime(required=False, readOnly=False, description=""),
+#    'has_attachments': fields.Boolean(required=False, readOnly=False, description=""),
+#    'importance': fields.String(required=False, readOnly=False, description=""),
+#    'is_all_day': fields.Boolean(required=False, readOnly=False, description=""),
+#    'is_associated': fields.Boolean(required=False, readOnly=False, description=""),
+#    'is_cancelled': fields.Boolean(required=False, readOnly=False, description=""),
+#    'is_draft': fields.Boolean(required=False, readOnly=False, description=""),
+#    'is_from_me': fields.Boolean(required=False, readOnly=False, description=""),
+#    'is_meeting': fields.Boolean(required=False, readOnly=False, description=""),
+#    'is_recurring': fields.Boolean(required=False, readOnly=False, description=""),
+#    'is_resend': fields.Boolean(required=False, readOnly=False, description=""),
+#    'is_response_requested': fields.Boolean(required=False, readOnly=False, description=""),
+#    'is_submitted': fields.Boolean(required=False, readOnly=False, description=""),
+#    'is_unmodified': fields.Boolean(required=False, readOnly=False, description=""),
+#    'item_class': fields.String(required=False, readOnly=False, description=""),
+#    'item_id': fields.String(required=False, readOnly=False, description=""),
+#    'last_modified_name': fields.String(required=False, readOnly=False, description=""),
+#    'last_modified_time': fields.DateTime(required=False, readOnly=False, description=""),
+#    'legacy_free_busy_status': fields.String(required=False, readOnly=False, description=""),
+#    'location': fields.String(required=False, readOnly=False, description=""),
+#    'meeting_request_was_sent': fields.Boolean(required=False, readOnly=False, description=""),
+#    'mime_content': fields.String(required=False, readOnly=False, description=""),
+#    'my_response_type': fields.String(required=False, readOnly=False, description=""),
+#    #'organizer': fields.ClassName("Mailbox"),
+#    'reminder_due_by': fields.DateTime(required=False, readOnly=False, description=""),
+#    'reminder_is_set': fields.Boolean(required=False, readOnly=False, description=""),
+#    'reminder_minutes_before_start': fields.Integer(required=False, readOnly=False, description=""),
+#    #'required_attendees': fields.List(fields.ClassName("Attendee")),
+#    'sensitivity': fields.String(required=False, readOnly=False, description=""),
+#    'size': fields.Integer(required=False, readOnly=False, description=""),
+#    'start': fields.DateTime(required=False, readOnly=False, description=""),
+#    'subject': fields.String(required=False, readOnly=False, description=""),
+#    'text_body': fields.String(required=False, readOnly=False, description=""),
+#    'type': fields.String(required=False, readOnly=False, description=""),
+#    'uid': fields.String(required=False, readOnly=False, description="")
+#})
+
+event = api.model('event', {
+  'end': fields.DateTime(required=True, readOnly=False, description=""),
+  'start': fields.DateTime(required=True, readOnly=False, description=""),
+  'subject': fields.String(required=True, readOnly=False, description=""),
+
+  '_end_timezone': fields.String(required=False, readOnly=False, description=""),
+  '_start_timezone': fields.String(required=False, readOnly=False, description=""),
+  'adjacent_meeting_count': fields.Integer(required=False, readOnly=False, description=""),
+  'allow_new_time_proposal': fields.Boolean(required=False, readOnly=False, description=""),
+  'appointment_reply_time': fields.DateTime(required=False, readOnly=False, description=""),
+  'appointment_sequence_number': fields.Integer(required=False, readOnly=False, description=""),
+  #'attachments': fields.List(),
+  'body': fields.String(required=False, readOnly=False, description=""),
+  'changekey': fields.String(required=False, readOnly=False, description=""),
+  'conference_type': fields.Integer(required=False, readOnly=False, description=""),
+  'conflicting_meeting_count': fields.Integer(required=False, readOnly=False, description=""),
+  #'conversation_id': fields.ClassName("ConversationId"),
+  'culture': fields.String(required=False, readOnly=False, description=""),
+  'datetime_created': fields.DateTime(required=False, readOnly=False, description=""),
+  'datetime_received': fields.DateTime(required=False, readOnly=False, description=""),
+  'datetime_sent': fields.DateTime(required=False, readOnly=False, description=""),
+  'display_to': fields.String(required=False, readOnly=False, description=""),
+  'duration': fields.String(required=False, readOnly=False, description=""),
+  #'effective_rights': fields.List(fields.ClassName("EffectiveRights")),
+  'has_attachments': fields.Boolean(required=False, readOnly=False, description=""),
+  'importance': fields.String(required=False, readOnly=False, description=""),
+  'is_all_day': fields.Boolean(required=False, readOnly=False, description=""),
+  'is_associated': fields.Boolean(required=False, readOnly=False, description=""),
+  'is_cancelled': fields.Boolean(required=False, readOnly=False, description=""),
+  'is_draft': fields.Boolean(required=False, readOnly=False, description=""),
+  'is_from_me': fields.Boolean(required=False, readOnly=False, description=""),
+  'is_meeting': fields.Boolean(required=False, readOnly=False, description=""),
+  'is_recurring': fields.Boolean(required=False, readOnly=False, description=""),
+  'is_resend': fields.Boolean(required=False, readOnly=False, description=""),
+  'is_response_requested': fields.Boolean(required=False, readOnly=False, description=""),
+  'is_submitted': fields.Boolean(required=False, readOnly=False, description=""),
+  'is_unmodified': fields.Boolean(required=False, readOnly=False, description=""),
+  'item_class': fields.String(required=False, readOnly=False, description=""),
+  'item_id': fields.String(required=False, readOnly=False, description=""),
+  'last_modified_name': fields.String(required=False, readOnly=False, description=""),
+  'last_modified_time': fields.DateTime(required=False, readOnly=False, description=""),
+  'legacy_free_busy_status': fields.String(required=False, readOnly=False, description=""),
+  'location': fields.String(required=False, readOnly=False, description=""),
+  'meeting_request_was_sent': fields.Boolean(required=False, readOnly=False, description=""),
+  'mime_content': fields.String(required=False, readOnly=False, description=""),
+  'my_response_type': fields.String(required=False, readOnly=False, description=""),
+  #'organizer': fields.ClassName("Mailbox"),
+  'reminder_due_by': fields.DateTime(required=False, readOnly=False, description=""),
+  'reminder_is_set': fields.Boolean(required=False, readOnly=False, description=""),
+  'reminder_minutes_before_start': fields.Integer(required=False, readOnly=False, description=""),
+  #'required_attendees': fields.List(fields.ClassName("Attendee")),
+  'sensitivity': fields.String(required=False, readOnly=False, description=""),
+  'size': fields.Integer(required=False, readOnly=False, description=""),
+  'text_body': fields.String(required=False, readOnly=False, description=""),
+  'type': fields.String(required=False, readOnly=False, description=""),
+  'uid': fields.String(required=False, readOnly=False, description="")
 })
 
 class CalendarDAO(object):
@@ -87,34 +146,38 @@ class CalendarDAO(object):
 
 
     def get(self, id):
-        for event in self.events:
-            if event['id'] == id:
-                return event
-        api.abort(404, "Event {} doesn't exist".format(id))
+      for event in self.events:
+          if event['id'] == id:
+              return event
+      api.abort(404, "Event {} doesn't exist".format(id))
 
     def refresh(self):
       retVal = GetEvents()
       return retVal
 
-    def createEvent(subject,start,end):
-      retVal = CreateCalendarEvent(subject,start,end)
-      return retVal
+    def create_event(self,data):
+      return CreateCalendarEvent(data['subject'],data['start'],data['end'])
 
 
 
 DAO = CalendarDAO()
 
-@calns_v1_0.route('/events')
+@calns_v1_0.route('/events', methods=['GET','POST'])
 class EventList(Resource):
-    '''Shows a list all events'''
-    @calns_v1_0.doc('list_events')
-    @calns_v1_0.marshal_list_with(cal)
+    @calns_v1_0.doc('get_events')
+    @calns_v1_0.marshal_list_with(event)
     def get(self):
         '''List all events'''
         return DAO.refresh()
-    def post(self,subject,start,end):
-        ''' Create an event '''
-        return DAO.createEvent(subject,start,end)
+
+    @calns_v1_0.doc('create_event')
+    @calns_v1_0.marshal_list_with(event)
+    def post(self):
+        '''Creates an event'''
+        print('posted')
+        data = request.get_json()
+        #return CreateCalendarEvent(subject=data.subject,start=data['start'],end=data.end)
+        return DAO.create_event(data)
 
 
 @calns_v1_0.route('/events/<int:id>')
@@ -123,7 +186,7 @@ class EventList(Resource):
 class Event(Resource):
     '''Show a single event'''
     @calns_v1_0.doc('get_event')
-    @calns_v1_0.marshal_with(cal)
+    @calns_v1_0.marshal_with(event)
     def get(self, id):
         '''Fetch a given resource'''
         return DAO.get(id)
