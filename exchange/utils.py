@@ -2,6 +2,13 @@ import os
 from datetime import date, datetime, timedelta
 from dateutil.parser import parse
 from exchangelib import DELEGATE, IMPERSONATION, Account, Credentials, ServiceAccount, EWSDateTime, EWSTimeZone, Configuration, NTLM, CalendarItem, Message, Mailbox, Attendee, Q, ExtendedProperty, FileAttachment, ItemAttachment, HTMLBody, Build, Version
+from enum import Enum
+from flask import abort
+
+class DELETE_TYPE(Enum):
+    delete = 1
+    soft_delete = 2
+    delete_notify = 3
 
 def GetEvents():
     events = []
@@ -139,3 +146,35 @@ def CreateCalendarEvent(subject,start,end):
 
     item.save()
     return(item)
+
+def DeleteCalendarEvent(eventid):
+    uname = os.getenv("EXCHANGE_PROXY_USERNAME")
+    pw = os.getenv("EXCHANGE_PROXY_PASSWORD")
+
+    credentials = ServiceAccount(username=uname, password=pw)
+
+    resource = os.getenv("O365_RESOURCE_ID")
+    domain = os.getenv("O365_DOMAIN")
+    addr = str.format("{0}@{1}",resource,domain)
+
+    account = Account(primary_smtp_address=addr, credentials=credentials, autodiscover=True, access_type=DELEGATE)
+
+    ews_url = account.protocol.service_endpoint
+    ews_auth_type = account.protocol.auth_type
+    primary_smtp_address = account.primary_smtp_address
+
+    eventsToDelete = []
+
+    for event in account.calendar.all():
+        if event.item_id == eventid:
+            eventsToDelete.append(event)
+
+        results = account.bulk_delete(eventsToDelete)
+        success = False
+        for result in results:
+            success = result
+
+        if success == True:
+            return GetEvents()
+        else:
+            abort(404,str.format('Resource {0} Not found',eventid))

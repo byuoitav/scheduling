@@ -3,7 +3,7 @@ from flask.views import MethodView
 from flask_cors import CORS
 from flask_restplus import Api, Resource, fields
 from exchange.calendarModel import CalendarField, ConversationId, EffectiveRights, Mailbox, Attendee, CalendarItem, Calendar
-from exchange.utils import GetEvents, CreateCalendarEvent
+from exchange.utils import GetEvents, CreateCalendarEvent, DeleteCalendarEvent
 #import json
 
 app = Flask(__name__)
@@ -145,11 +145,11 @@ class CalendarDAO(object):
       self.events = []
 
 
-    def get(self, id):
+    def get(self, item_id):
       for event in self.events:
-          if event['id'] == id:
+          if event['id'] == item_id:
               return event
-      api.abort(404, "Event {} doesn't exist".format(id))
+      api.abort(404, "Event {} doesn't exist".format(item_id))
 
     def refresh(self):
       retVal = GetEvents()
@@ -157,6 +157,12 @@ class CalendarDAO(object):
 
     def create_event(self,data):
       return CreateCalendarEvent(data['subject'],data['start'],data['end'])
+
+    def delete(self,eventId):
+      #for event in self.events:
+          #if event['id'] == eventId:
+      return DeleteCalendarEvent(eventId)
+      #api.abort(404, "Event {} doesn't exist".format(eventId))
 
 
 
@@ -195,31 +201,35 @@ class EventList(Resource):
     @calns_v1_0.response(503, 'Service Unavailable')
     def post(self):
         '''Creates an event'''
-        print('posted')
         data = request.get_json()
         #return CreateCalendarEvent(subject=data.subject,start=data['start'],end=data.end)
         return DAO.create_event(data)
 
 
-@calns_v1_0.route('/events/<int:id>')
-@calns_v1_0.response(404, 'Event not found')
-@calns_v1_0.param('id', 'The task identifier')
+@calns_v1_0.route('/events/<string:item_id>',methods=['GET','PUT','DELETE'])
+@calns_v1_0.param('item_id', 'The event item_id')
+@calns_v1_0.response(200, 'OK')
+@calns_v1_0.response(400, 'Bad Request')
+@calns_v1_0.response(401, 'Unauthorized')
+@calns_v1_0.response(403, 'Forbidden')
+@calns_v1_0.response(404, 'Not Found')
+@calns_v1_0.response(408, 'Request Timeout')
+@calns_v1_0.response(410, 'Gone')
+@calns_v1_0.response(500, 'Internal Server Error')
+@calns_v1_0.response(503, 'Service Unavailable')
 class Event(Resource):
-    '''Show a single event'''
     @calns_v1_0.doc('get_event')
     @calns_v1_0.marshal_with(event)
-    @calns_v1_0.response(200, 'OK')
-    @calns_v1_0.response(400, 'Bad Request')
-    @calns_v1_0.response(401, 'Unauthorized')
-    @calns_v1_0.response(403, 'Forbidden')
-    @calns_v1_0.response(404, 'Not Found')
-    @calns_v1_0.response(408, 'Request Timeout')
-    @calns_v1_0.response(410, 'Gone')
-    @calns_v1_0.response(500, 'Internal Server Error')
-    @calns_v1_0.response(503, 'Service Unavailable')
-    def get(self, id):
-        '''Fetch a given resource'''
-        return DAO.get(id)
+    def get(self, item_id):
+      '''Fetch a given resource'''
+      return DAO.get(item_id)
+
+
+    @calns_v1_0.doc('delete_event')
+    @calns_v1_0.marshal_with(event)
+    def delete(self,item_id):
+      '''Delete specified resource'''
+      return DAO.delete(item_id)
 
 
 if __name__ == '__main__':
