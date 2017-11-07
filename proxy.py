@@ -166,12 +166,33 @@ DAO = CalendarDAO()
 class EventList(Resource):
     @calns_v1_0.doc('get_events')
     @calns_v1_0.marshal_list_with(event)
+    @calns_v1_0.response(200, 'OK')
+    @calns_v1_0.response(204, 'No Content')
+    @calns_v1_0.response(400, 'Bad Request')
+    @calns_v1_0.response(401, 'Unauthorized')
+    @calns_v1_0.response(404, 'Not Found')
+    @calns_v1_0.response(408, 'Request Timeout')
+    @calns_v1_0.response(500, 'Internal Server Error')
+    @calns_v1_0.response(503, 'Service Unavailable')
     def get(self):
         '''List all events'''
         return DAO.refresh()
 
     @calns_v1_0.doc('create_event')
     @calns_v1_0.marshal_list_with(event)
+    @calns_v1_0.param('subject', 'The event title')
+    @calns_v1_0.param('start', 'The event start time')
+    @calns_v1_0.param('end', 'The event end time')
+    @calns_v1_0.response(201, 'Created')
+    @calns_v1_0.response(400, 'Bad Request')
+    @calns_v1_0.response(401, 'Unauthorized')
+    @calns_v1_0.response(403, 'Forbidden')
+    @calns_v1_0.response(404, 'Not Found')
+    @calns_v1_0.response(408, 'Request Timeout')
+    @calns_v1_0.response(409, 'Conflict')
+    @calns_v1_0.response(413, 'Payload Too Large')
+    @calns_v1_0.response(500, 'Internal Server Error')
+    @calns_v1_0.response(503, 'Service Unavailable')
     def post(self):
         '''Creates an event'''
         print('posted')
@@ -187,6 +208,15 @@ class Event(Resource):
     '''Show a single event'''
     @calns_v1_0.doc('get_event')
     @calns_v1_0.marshal_with(event)
+    @calns_v1_0.response(200, 'OK')
+    @calns_v1_0.response(400, 'Bad Request')
+    @calns_v1_0.response(401, 'Unauthorized')
+    @calns_v1_0.response(403, 'Forbidden')
+    @calns_v1_0.response(404, 'Not Found')
+    @calns_v1_0.response(408, 'Request Timeout')
+    @calns_v1_0.response(410, 'Gone')
+    @calns_v1_0.response(500, 'Internal Server Error')
+    @calns_v1_0.response(503, 'Service Unavailable')
     def get(self, id):
         '''Fetch a given resource'''
         return DAO.get(id)
