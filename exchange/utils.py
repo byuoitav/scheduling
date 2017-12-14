@@ -122,8 +122,9 @@ def CreateCalendarEvent(subject,start,end):
     credentials = ServiceAccount(username=uname, password=pw)
 
     resource = os.getenv("O365_RESOURCE_ID")
-    domain = os.getenv("O365_DOMAIN")
-    addr = str.format("{0}@{1}",resource,domain)
+    domain = os.getenv("byu.edu")
+    #addr = str.format("{0}@{1}",resource,domain)
+    addr = "itb_1106@byu.edu"
 
     account = Account(primary_smtp_address=addr, credentials=credentials, autodiscover=True, access_type=DELEGATE)
 
@@ -133,8 +134,9 @@ def CreateCalendarEvent(subject,start,end):
     tz = EWSTimeZone.timezone('America/Denver')
 
     ## Get reference date objects
-    startDate = datetime.strptime(start,"%Y-%m-%dT%H:%M:%S")
-    endDate = datetime.strptime(end,"%Y-%m-%dT%H:%M:%S")
+    startDate = datetime.strptime(start,"%Y-%m-%dT%H:%M:%S.%fZ")
+    endDate = datetime.strptime(end,"%Y-%m-%dT%H:%M:%S.%fZ")
+
     tomorrow = date.today() + timedelta(days=1)
 
     item = CalendarItem(
