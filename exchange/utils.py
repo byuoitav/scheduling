@@ -123,8 +123,7 @@ def CreateCalendarEvent(subject,start,end):
 
     resource = os.getenv("O365_RESOURCE_ID")
     domain = os.getenv("byu.edu")
-    #addr = str.format("{0}@{1}",resource,domain)
-    addr = "itb_1106@byu.edu"
+    addr = str.format("{0}@{1}",resource,domain)
 
     account = Account(primary_smtp_address=addr, credentials=credentials, autodiscover=True, access_type=DELEGATE)
 
