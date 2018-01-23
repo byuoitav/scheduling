@@ -53,9 +53,10 @@ CORS(app)
 
 api = Api(app, version='1.0', title='Exchange Resource Proxy', description='Proxy for exchange calendar resources')
 
-## TODO: Implement HATEOAS
+# TODO: Implement HATEOAS
 
-## TODO: Fix swagger demo representation
+# TODO: Fix swagger demo representation
+
 
 def connect_db():
     rv = sqlite3.connect(dbname)
@@ -90,10 +91,11 @@ def show_entries():
     return entries
 
 def convertDstTzInfo(string):
-  tmp=string
-  tmp.replace("<","\"")
-  tmp.replace(">","\"")
-  tmp.replace("DstTzInfo","")
+    tmp = string
+    tmp.replace("<", "\"")
+    tmp.replace(">", "\"")
+    tmp.replace("DstTzInfo", "")
+
 
 root = api.namespace('v1.0', description='')
 calns_v1_0 = api.namespace('v1.0/exchange/calendar/', description='Calendar operations')
@@ -158,15 +160,16 @@ event = api.model('event', {
   'uid': fields.String(required=False, readOnly=False, description="")
 })
 
+
 class CalendarDAO(object):
     def __init__(self):
       self.events = []
 
     def get(self, item_id):
-      for event in self.events:
-          if event['id'] == item_id:
-              return event
-      api.abort(404, "Event {} doesn't exist".format(item_id))
+        for event in self.events:
+            if event['id'] == item_id:
+                return event
+        api.abort(404, "Event {} doesn't exist".format(item_id))
 
     def refresh(self):
       retVal = GetEvents()
@@ -191,7 +194,8 @@ class CalendarDAO(object):
 
 DAO = CalendarDAO()
 
-@calns_v1_0.route('/events', methods=['GET','POST'])
+
+@calns_v1_0.route('/events', methods=['GET', 'POST'])
 class EventList(Resource):
     @calns_v1_0.doc('get_events')
     @calns_v1_0.marshal_list_with(event)
@@ -226,11 +230,11 @@ class EventList(Resource):
     def post(self):
         '''Creates an event'''
         data = request.get_json()
-        #return CreateCalendarEvent(subject=data.subject,start=data['start'],end=data.end)
+        # return CreateCalendarEvent(subject=data.subject,start=data['start'],end=data.end)
         return DAO.create_event(data)
 
 
-@calns_v1_0.route('/events/<string:item_id>',methods=['GET','PUT','DELETE'])
+@calns_v1_0.route('/events/<string:item_id>', methods=['GET', 'PUT', 'DELETE'])
 @calns_v1_0.param('item_id', 'The event item_id')
 @calns_v1_0.response(200, 'OK')
 @calns_v1_0.response(400, 'Bad Request')
@@ -245,15 +249,14 @@ class Event(Resource):
     @calns_v1_0.doc('get_event')
     @calns_v1_0.marshal_with(event)
     def get(self, item_id):
-      '''Fetch a given resource'''
-      return DAO.get(item_id)
-
+        '''Fetch a given resource'''
+        return DAO.get(item_id)
 
     @calns_v1_0.doc('delete_event')
     @calns_v1_0.marshal_with(event)
-    def delete(self,item_id):
-      '''Delete specified resource'''
-      return DAO.delete(item_id)
+    def delete(self, item_id):
+        '''Delete specified resource'''
+        return DAO.delete(item_id)
 
 @app.teardown_appcontext
 def close_connection(exception):
