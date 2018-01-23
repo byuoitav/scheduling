@@ -23,4 +23,4 @@ docker
 __pycache__
 
 #sqlite
-scheduler.db
+*.db
