@@ -183,7 +183,7 @@ class CalendarDAO(object):
       return retVal
 
     def create_event(self,data):
-      return CreateCalendarEvent(data['subject'],data['start'],data['end'])
+      return CreateCalendarEvent(data['Subject'],data['Start'],data['End'])
 
     def delete(self,eventId):
       #for event in self.events:
