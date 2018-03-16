@@ -1,4 +1,7 @@
 #!/bin/bash
+
+rm *.db
+
 i=0
 
 export FLASK_APP=proxy.py 
