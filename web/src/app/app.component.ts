@@ -7,7 +7,6 @@ import { environment } from '../environments/environment';
 import { Event, Timeslot } from './model/o365.model';
 
 //import { IKeyboardLayout, MD_KEYBOARD_LAYOUTS, MdKeyboardComponent, MdKeyboardRef, MdKeyboardService } from '@ngx-material-keyboard/core';
-import * as angular from 'angular';
 
 export class Resource {
   id: string;
@@ -29,7 +28,6 @@ const RESOURCE: Resource = {
   busy: false
 }
 const hostname = environment.hostname;
-const ip = environment.hostIP;
 declare var newEvent: Event;
 
 const NOEVENTS_MESSAGES: string[] = ["No Events Today", "Your schedule is clear", "My schedule is wide open"]
@@ -187,6 +185,9 @@ export class AppComponent implements OnInit {
     }*/
     this.refreshData();
 
+    setInterval(() => {
+        this.refreshData();
+    }, 60000)
   }
 
   calcTimeslots(): void {
@@ -307,7 +308,7 @@ export class AppComponent implements OnInit {
  */
 
   availabilityClass(e: Event): string {
-    if (e.Subject.toString() == 'Available') {
+    if (e.subject.toString() == 'Available') {
       return "agenda-view-row-available";
     }
     else {
@@ -371,8 +372,8 @@ export class AppComponent implements OnInit {
     ////console.log(i.toString());
     while (consolidate) {
       if (i > 0) {
-        if (this.events[i].Subject === this.events[i - 1].Subject) {
-          this.events[i - 1].End = new Date(this.events[i].End.getDate());
+        if (this.events[i].subject === this.events[i - 1].subject) {
+          this.events[i - 1].end = new Date(this.events[i].end.getDate());
           this.events.pop();
           i = this.events.length - 1;
         }
@@ -392,7 +393,7 @@ export class AppComponent implements OnInit {
   currentMeeting() {
     var now = new Date();
     for (var i = 0; i < this.events.length; i++) {
-      if ((new Date(this.events[i].Start) <= now) && (new Date(this.events[i].End) >= now)) {
+      if ((new Date(this.events[i].start) <= now) && (new Date(this.events[i].end) >= now)) {
         this.currentEvent = this.events[i];
         //console.log(this.currentEvent);
         return;
@@ -511,7 +512,7 @@ export class AppComponent implements OnInit {
     //this.getNewEndTime(this.newEventEndTimeId);
   }
   onEndChange(selectedID): void {
-      if (selectedID <= this.newEventStartTimeId) {
+      if (this.newEventStartTimeId == null || selectedID <= this.newEventStartTimeId) {
           this.newEventStartTimeId = selectedID - 1;
       }
   }
@@ -531,28 +532,30 @@ export class AppComponent implements OnInit {
     this.populateRefHours();
     this.events = [];
     this.noEvents = true;
-    var url = 'http://' + ip + ':5000/v1.0/exchange/calendar/events';
-    this.http.get(url).subscribe(data => {
-      angular.forEach(data, function(obj) {
-        var e = new Event();
-        e.Subject = obj.subject;
-        e.Start = obj.start;
-        e.End = obj.end;
-        this.events.push(e);
-        this.noEvents = false;
-      }, this);
+
+    let url = 'http://localhost:5000/v1.0/exchange/calendar/events';
+    this.http.get<Event[]>(url).subscribe(data => {
+        for (let event of data) {
+            let e = new Event();
+            e.subject = event.subject;
+            e.start = event.start;
+            e.end = event.end;
+
+            this.events.push(e);
+            this.noEvents = false;
+        }
+
+        this.events.sort((a,b) => {
+            if (a.start < b.start) {
+                return -1;
+            } else if (a.start > b.start) {
+                return 1;
+            }
+            return 0;
+        });
+
+       this.currentMeeting();
     });
-
-      /*for (var i = 0; i < this.timeSlots.length; i++) {
-        var e = new Event();
-        e.Subject = "Available";
-        e.Start = this.timeSlots[i].Start;
-        e.End = this.timeSlots[i].End;
-        this.events.push(e);
-      }
-      this.consolidate_events();*/
-
-    this.currentMeeting();
   }
   reset(): void {
     this.refreshData();
@@ -566,6 +569,8 @@ export class AppComponent implements OnInit {
     this.restartRequested = false;
     this.showAgenda = false;
     this.showWaitSpinner = false;
+
+    this.validTimeIncrements = [];
   }
   resetModal(): void {
     this.helpPressed = false;
@@ -634,16 +639,6 @@ export class AppComponent implements OnInit {
       clearTimeout(this.currentTimeout);
     }
   }
-  /*
-  getNewEndTime(newTime): void {
-    this.newEventEndTimeValue = this.getSelectedText("newEventEndTime",newTime);
-    //console.log("end: " + this.newEventEndTimeValue);
-  }
-  getNewStartTime(newTime): void{
-    this.newEventStartTimeValue = this.getSelectedText("newEventStartTime",newTime);
-    //console.log("start: " + this.newEventStartTimeValue);
-  }
- */
   submitEventForm(): void {
     this.showWaitSpinner=true;
     var e = this.newEventEndTimeValue;
@@ -692,14 +687,14 @@ export class AppComponent implements OnInit {
     var startTime = new Date(y,M,d,sH,sM,0);
     var endTime = new Date(y,M,d,eH,eM,0);
 
-    req.Subject = tmpSubject;
-    req.Start = new Date(startTime.getTime() - tzoffset*60000);
-    req.End = new Date(endTime.getTime() - tzoffset*60000);
+    req.subject = tmpSubject;
+    req.start = new Date(startTime.getTime() - tzoffset*60000);
+    req.end = new Date(endTime.getTime() - tzoffset*60000);
 
     /////////
     ///  SUBMIT
     ///////
-    var url = 'http://' + ip + ':5000/v1.0/exchange/calendar/events';
+    var url = 'http://localhost:5000/v1.0/exchange/calendar/events';
 
     var resp = this.http.post(url,JSON.stringify(req),{headers: new HttpHeaders().set('Content-Type', 'application/json')}).subscribe();
 

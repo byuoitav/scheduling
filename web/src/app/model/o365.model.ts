@@ -163,7 +163,7 @@ export class Event {
   ChangeKey: string
   CreatedDateTime: Date
   LastModifiedDateTime: Date
-  End: Date
+  end: Date
   Extensions: any[]
   HasAttachments: boolean
   Id: string
@@ -186,9 +186,9 @@ export class Event {
   Sensitivity: Sensitivity
   SeriesMasterId: string
   ShowAs: FreeBusyStatus
-  Start: Date
+  start: Date
   Style: any
-  Subject: string
+  subject: string
   Type: number //The event type: SingleInstance = 0, Occurrence = 1, Exception = 2, SeriesMaster = 3.
   WebLink: string
   constructor() {

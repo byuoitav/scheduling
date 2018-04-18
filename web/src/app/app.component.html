@@ -15,7 +15,7 @@
         IN USE
     </div>
     <div class="white eventName font-serif font-size-5 font300" *ngIf="currentEvent">
-        {{currentEvent.Subject}}
+        {{currentEvent.subject}}
     </div>
 
     <div class="clock">
@@ -124,6 +124,7 @@
     </div>-->
     </div>
     <div id="agenda-lower-section-wrapper" class="agenda-lower-section-wrapper">
+        <!-->
         <div id="agenda-time-reference-sidebar" class="agenda-time-reference-sidebar font-sans white" *ngIf="noEvents == false">
             <ul id="refHours" class="refHours" (scroll)="scrollAgendaEvent($event.target)">
                 <li *ngFor="let hour of refHours" class="refHours-hour">
@@ -131,6 +132,7 @@
                 </li>
             </ul>
         </div>
+        -->
         <div id="current-time-bar-wrapper" class="current-time-bar-wrapper" *ngIf="noEvents == false">
             <div class="current-time-bar-top" [style.top]="percentOfDayExpended">
 
@@ -149,7 +151,7 @@
                 <li *ngFor="let event of events" class="agenda-view-row-unavailable" ng-class="availabilityClass(event)">
                     <div class="agenda-view-row-container" ng-class="availabilityClass(event)">
                         <div class="agenda-row-section1 font-serif font-size-2 white">
-                            {{event.Subject}}
+                            {{event.subject}}
                         </div>
                         <div class="agenda-row-section2">
                             <div class="agenda-row-duration font-sans font-size-2 white"><strong>
@@ -157,7 +159,7 @@
               </strong>
                             </div>
                             <div class="agenda-row-start-end font-serif font-size-2 white">
-                                {{event.Start | amDateFormat:'h:mm a'}} - {{event.End | amDateFormat:'h:mm a'}}
+                                {{event.start | amDateFormat:'h:mm a'}} - {{event.end | amDateFormat:'h:mm a'}}
                             </div>
                         </div>
                     </div>
