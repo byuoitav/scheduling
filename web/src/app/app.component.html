@@ -1,0 +1,240 @@
+<link href="https://fonts.googleapis.com/css?family=Roboto:100,200,300,400,500,600,700,800,900" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css?family=Roboto+Slab:100,200,300,400,500,600,700,800,900" rel="stylesheet">
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+<div class="window">
+    <div class="unoccupiedBanner" *ngIf="unoccupied" (click)="reset()"></div>
+    <div class="occupiedBanner" *ngIf="occupied" (click)="reset()"></div>
+    <div class="roomTitle">
+        {{resource.name}}
+    </div>
+    <div class="availability" *ngIf="unoccupied">
+        AVAILABLE
+    </div>
+    <div class="in-use" *ngIf="occupied">
+        IN USE
+    </div>
+    <div class="white eventName font-serif font-size-5 font300" *ngIf="currentEvent">
+        {{currentEvent.Subject}}
+    </div>
+
+    <div class="clock">
+        {{ date | amDateFormat:'h:mm'}}
+    </div>
+    <div class="date">
+        {{date | amDateFormat:'dddd, MMM DD'}}
+    </div>
+    <div class="buttonBarBackground"></div>
+    <div class="buttonWrapper">
+        <div *ngIf="showHelpButton" (click)="helpClick()" class="helpButton font-size-10 font-sans">?</div>
+        <div *ngIf="allowBookNowFunction" class="bookNowButton" (click)="bookNow()">
+            <div class="plusIcon buttonIcon"></div>
+            <div class="button-label">BOOK NOW</div>
+        </div>
+        <div class="scheduleButton" (click)="scheduleEvent()">
+            <div class="calendarIcon buttonIcon"></div>
+            <div class="button-label">VIEW SCHEDULE</div>
+        </div>
+    </div>
+    <!--<div class="cancelNowButton" (click)="cancelEvent(event)" *ngIf="currentEvent">
+    <div class="button-label">CANCEL</div>
+  </div> -->
+
+</div>
+<div class="bookNow" *ngIf="bookEvent">
+    <div class="booking-banner-background unoccupied" *ngIf="unoccupied"></div>
+    <div class="booking-banner-background occupied" *ngIf="occupied"></div>
+    <div class="booking-banner">
+        <div class="cancellation-back-arrow" (click)="bookNewEvent()"></div>
+        <div class="subpage-title-booking">
+            Booking {{resource.name}} for {{date | amDateFormat:'dddd, MMM DD'}}
+        </div>
+    </div>
+    <div class="book-now-container-background"></div>
+    <div class="book-now-container">
+        <div class="book-now-form">
+            <div class="book-now-title-block font-size-3">
+                <label class="book-now-title">TITLE</label>
+                <div class="textarea font-serif font-size-2 white">Ad-hoc Meeting</div>
+            </div>
+            <div class="book-now-start-block">
+                <div id="book-now-start-label">
+                    <label class="book-now-start-label font400">START TIME</label>
+                </div>
+                <div class="book-now-start-select">
+                    <select id="newEventStartTime" [(ngModel)]="newEventStartTimeId" (change)="onStartChange($event.target.value)">
+                      <option *ngFor="let inc of validTimeIncrements" value="{{inc.id}}">{{inc.value}}</option>
+                    </select>
+                </div>
+            </div>
+            <div class="book-now-end-block">
+                <div id="book-now-end-label">
+                    <label class="book-now-end-label font400">END TIME</label>
+                </div>
+                <div class="book-now-end-select">
+                    <select id="newEventEndTime" [(ngModel)]="newEventEndTimeId" (change)="getNewEndTime($event.target.value)">
+                      <option *ngFor="let inc of validTimeIncrements" value="{{inc.id}}">{{inc.value}}</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="clock">
+        {{ date | amDateFormat:'h:mm'}}
+    </div>
+    <div class="date">
+        {{date | amDateFormat:'dddd, MMM DD'}}
+    </div>
+    <!-- //TODO: Make this bookNow() -->
+    <div class="book-now-save-button" (click)="submitEventForm()"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="160px" height="45px">
+      <image  x="0px" y="0px" width="160px" height="40px"  xlink:href="data:img/png;base64,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" />
+      </svg>
+    </div>
+    <div class="cancel-book-now-button" (click)="reset()"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="160px" height="45px">
+      <image  x="0px" y="0px" width="160px" height="40px"  xlink:href="data:img/png;base64,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" />
+      </svg>
+    </div>
+</div>
+
+
+<div class="scheduleEvent" *ngIf="showAgenda">
+    <div class="agenda-banner unoccupied" *ngIf="unoccupied">
+        <div class="schedule-back-x" (click)="reset()"></div>
+        <div class="subpage-title-booking">
+            {{resource.name}} Schedule
+        </div>
+        <!--<div class="book-now-clock-small">
+      {{ date | amDateFormat:'h:mm'}}
+    </div>-->
+    </div>
+    <div class="agenda-banner occupied" *ngIf="occupied">
+        <div class="schedule-back-x" (click)="reset()"></div>
+        <div class="subpage-title-booking">
+            {{resource.name}} Schedule
+        </div>
+        <!--<div class="book-now-clock-small">
+      {{ date | amDateFormat:'h:mm'}}
+    </div>-->
+    </div>
+    <div id="agenda-lower-section-wrapper" class="agenda-lower-section-wrapper">
+        <div id="agenda-time-reference-sidebar" class="agenda-time-reference-sidebar font-sans white" *ngIf="noEvents == false">
+            <ul id="refHours" class="refHours" (scroll)="scrollAgendaEvent($event.target)">
+                <li *ngFor="let hour of refHours" class="refHours-hour">
+                    <div class="refHours-view-row-container">{{hour}}</div>
+                </li>
+            </ul>
+        </div>
+        <div id="current-time-bar-wrapper" class="current-time-bar-wrapper" *ngIf="noEvents == false">
+            <div class="current-time-bar-top" [style.top]="percentOfDayExpended">
+
+            </div>
+            <div class="current-time-bar-bottom">
+
+            </div>
+        </div>
+        <div class="agenda-view-table" *ngIf="noEvents">
+            <div class="agenda-no-events font300 font-size-5 font-serif">
+                {{this.noEvents_message}}
+            </div>
+        </div>
+        <div class="agenda-view-table" *ngIf="noEvents == false">
+            <ul id="agenda" class="agenda" (scroll)="scrollAgendaEvent($event.target)">
+                <li *ngFor="let event of events" class="agenda-view-row-unavailable" ng-class="availabilityClass(event)">
+                    <div class="agenda-view-row-container" ng-class="availabilityClass(event)">
+                        <div class="agenda-row-section1 font-serif font-size-2 white">
+                            {{event.Subject}}
+                        </div>
+                        <div class="agenda-row-section2">
+                            <div class="agenda-row-duration font-sans font-size-2 white"><strong>
+              {{durationString(event)}}
+              </strong>
+                            </div>
+                            <div class="agenda-row-start-end font-serif font-size-2 white">
+                                {{event.Start | amDateFormat:'h:mm a'}} - {{event.End | amDateFormat:'h:mm a'}}
+                            </div>
+                        </div>
+                    </div>
+                </li>
+            </ul>
+        </div>
+        <div class="clock">
+            {{ date | amDateFormat:'h:mm'}}
+        </div>
+        <div class="date">
+            {{date | amDateFormat:'dddd, MMM DD'}}
+        </div>
+    </div>
+</div>
+<div class="cancelEvent" *ngIf="cancellation">
+    <div class="cancel-banner" *ngIf="unoccupied">
+        <div class="cancel-subpage-title">
+            Canceling {{resource.name}} for {{date | amDateFormat:'dddd, MMM DD'}}
+        </div>
+    </div>
+    <div class="cancel-banner" *ngIf="occupied">
+        <div class="cancel-subpage-title">
+            Canceling {{resource.name}} for {{date | amDateFormat:'dddd, MMM DD'}}
+        </div>
+    </div>
+    <div class="cancelEvent-message-background"></div>
+    <div class="cancelEvent-message-container">
+
+        <div class="cancel-p">
+            Are you sure you want to cancel this meeting?
+        </div>
+        <div class="cancel-meeting-title font-serif white">
+            {{selectedEvent.subject}}
+        </div>
+        <div (click)="cancelPage_no()" class="cancelEvent-no-button"></div>
+        <div (click)="cancelPage_yes(selectedEvent)" class="cancelEvent-yes-button"></div>
+    </div>
+</div>
+<div *ngIf="showWaitSpinner" class="modal helpModal stayOnTop" (click)="resetModal()">
+</div>
+<div *ngIf="showWaitSpinner" class="modalContentDark stayOnTop">
+    <div class="lds-default"><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div></div>
+</div>
+<div *ngIf="helpPressed || helpRequested" class="modal helpModal stayOnTop" (click)="resetModal()">
+</div>
+<div *ngIf="helpPressed" class="modalContent stayOnTop">
+    <div class="help-cancel" (click)="resetModal()">
+        <i class="material-icons">close</i>
+    </div>
+    <div class="help-message-background"></div>
+    <div class="help-message-container">
+        <div class="font-sans helpLabel">
+            What sort of help would you like?
+        </div>
+        <div (click)="helpInformationRequest()" class="helpInformationRequest font-serif iconButton"><i class="material-icons">question_answer</i><br />HOW DO I...?</div>
+        <div (click)="helpRequest()" class="sendHelp font-serif iconButton"><i class="material-icons">live_help</i><br />SEND HELP</div>
+    </div>
+</div>
+<div *ngIf="helpInformation" class="modalContent stayOnTop">
+    <div class="help-cancel" (click)="resetModal()">
+        <i class="material-icons">close</i>
+    </div>
+    <div class="help-message-background"></div>
+    <div class="help-message-container">
+        <div class="font-sans helpLabel">
+            How do I...?
+        </div>
+        <div (click)="restartBrowser()" class="restartBrowser font-serif iconButton"><i class="material-icons">power_settings_new</i><br />RESTART PANEL</div>
+        <!--<div (click)="helpRequest()" class="sendHelp font-serif iconButton"><i class="material-icons">live_help</i><br />SEND HELP</div>-->
+    </div>
+</div>
+<div *ngIf="restartRequested" class="modalContent stayOnTop">
+    <div class="help-cancel" (click)="resetModal()">
+        <i class="material-icons">close</i>
+    </div>
+    <div class="modalContentInnerContainer" (click)="resetModal()">
+        Restarting the scheduling panel
+    </div>
+</div>
+<div *ngIf="helpRequested" class="modalContent stayOnTop" (click)="reset()">
+    <div class="help-cancel" (click)="resetModal()">
+        <i class="material-icons">close</i>
+    </div>
+    <div class="modalContentInnerContainer" (click)="resetModal()">
+        Your help request has been received.
+    </div>
+</div>
