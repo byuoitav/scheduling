@@ -6,7 +6,7 @@ import { SimpleTimer } from 'ng2-simple-timer';
 import { environment } from '../environments/environment';
 import { Event, Timeslot } from './model/o365.model';
 
-import { IKeyboardLayout, MD_KEYBOARD_LAYOUTS, MdKeyboardComponent, MdKeyboardRef, MdKeyboardService } from '@ngx-material-keyboard/core';
+//import { IKeyboardLayout, MD_KEYBOARD_LAYOUTS, MdKeyboardComponent, MdKeyboardRef, MdKeyboardService } from '@ngx-material-keyboard/core';
 import * as angular from 'angular';
 
 export class Resource {
@@ -76,9 +76,9 @@ export class AppComponent implements OnInit {
   newEvent: Event;
   //newEventTitle: string;
   newEventTitle = "Ad-hoc Meeting";
-  newEventEndTimeId: string;
+  newEventEndTimeId: number;
   newEventEndTimeValue: string;
-  newEventStartTimeId: string;
+  newEventStartTimeId: number;
   newEventStartTimeValue: string;
   noEvents: boolean;
   noEvents_message = "No Events Today";
@@ -100,7 +100,7 @@ export class AppComponent implements OnInit {
   validTimeIncrements: TimeIncrement[] = [];
   percentOfDayExpended: number;
 
-  private _keyboardRef: MdKeyboardRef<MdKeyboardComponent>;
+//  private _keyboardRef: MdKeyboardRef<MdKeyboardComponent>;
 
   darkTheme: boolean;
 
@@ -116,23 +116,25 @@ export class AppComponent implements OnInit {
 
   layouts: {
     name: string;
-    layout: IKeyboardLayout;
+//    layout: IKeyboardLayout;
   }[];
 
+  /*
   get keyboardVisible(): boolean {
     return this._keyboardService.isOpened;
   }
+ */
 
-  constructor(private _keyboardService: MdKeyboardService,
+  constructor(
+//      private _keyboardService: MdKeyboardService,
     @Inject(LOCALE_ID) public locale,
-    @Inject(MD_KEYBOARD_LAYOUTS) private _layouts,
+//    @Inject(MD_KEYBOARD_LAYOUTS) private _layouts,
     private http: HttpClient) { }
 
   ngOnInit(): void {
-    //var that = this;
     window.addEventListener('load', function(){
       document.addEventListener('touchstart', function(e){
-        if (timeoutID > 0 && timeoutID != null){
+        if (timeoutID != null && timeoutID > 0){
           window.clearTimeout(timeoutID);
           timeoutID = window.setTimeout(timeoutTTL);
         }
@@ -146,8 +148,6 @@ export class AppComponent implements OnInit {
     this.utcTime();
 
     this.transitionTimer = new SimpleTimer();
-
-    //console.log(this.timeSlots);
 
     this.bookEvent = false;
     this.cancellation = false;
@@ -166,7 +166,6 @@ export class AppComponent implements OnInit {
     else {
       this.occupied = false;
     }
-    //this.occupied = false;
     this.showAgenda = false;
     this.selectedEvent = null;
     this.selectedStartValue = 0;
@@ -284,6 +283,7 @@ export class AppComponent implements OnInit {
         }
   }
 
+  /*
   openKeyboard(locale = this.defaultLocale) {
     this._keyboardRef = this._keyboardService.open(locale, {
       //darkTheme: this.darkTheme,
@@ -304,6 +304,7 @@ export class AppComponent implements OnInit {
     this.darkTheme = dark;
     this._keyboardRef.darkTheme = dark;
   }
+ */
 
   availabilityClass(e: Event): string {
     if (e.Subject.toString() == 'Available') {
@@ -505,10 +506,14 @@ export class AppComponent implements OnInit {
     this.selectedEvent = event;
   }
   onStartChange(selectedStartOption): void {
-    var i = Number(selectedStartOption) + 1;
-    this.newEventEndTimeId = i.toString();
-    this.getNewStartTime(selectedStartOption);
-    this.getNewEndTime(this.newEventEndTimeId);
+    this.newEventEndTimeId = selectedStartOption + 1;
+    //this.getNewStartTime(selectedStartOption);
+    //this.getNewEndTime(this.newEventEndTimeId);
+  }
+  onEndChange(selectedID): void {
+      if (selectedID <= this.newEventStartTimeId) {
+          this.newEventStartTimeId = selectedID - 1;
+      }
   }
   percent(): void {
     setInterval(function() {
@@ -617,16 +622,19 @@ export class AppComponent implements OnInit {
     this.currentTimeoutTTL = t;
     var that = this;
     this.stopScreenResetTimeout();
+    /*
     this.currentTimeout = setTimeout(function(){
       that.reset();
       that.closeCurrentKeyboard();
     },t);
+   */
   }
   stopScreenResetTimeout(): void {
     if (this.currentTimeout != null) {
       clearTimeout(this.currentTimeout);
     }
   }
+  /*
   getNewEndTime(newTime): void {
     this.newEventEndTimeValue = this.getSelectedText("newEventEndTime",newTime);
     //console.log("end: " + this.newEventEndTimeValue);
@@ -635,6 +643,7 @@ export class AppComponent implements OnInit {
     this.newEventStartTimeValue = this.getSelectedText("newEventStartTime",newTime);
     //console.log("start: " + this.newEventStartTimeValue);
   }
+ */
   submitEventForm(): void {
     this.showWaitSpinner=true;
     var e = this.newEventEndTimeValue;

@@ -488,27 +488,19 @@ position: absolute;
 
 .book-now-start-select {
   position: fixed;
-  top: 75%;
-left: 5%;
-  /*left: 13%;*/
+  bottom: 10vh;
+  left: 5%;
 }
 
 .book-now-end-select {
   position: fixed;
-  top: 75%;
-left: 34%;
-  /*left: 42%;*/
+  bottom: 10vh;
+  left: 34%;
 }
+
+/*
 select {
-  /*-moz-transform: matrix( 2.78609839089217, 0, 0, 2.78609839089217, 0, 0);*/
-  /*-ms-transform: matrix( 2.78609839089217, 0, 0, 2.78609839089217, 0, 0);*/
-  /*-webkit-transform: matrix( 2.78609839089217, 0, 0, 2.78609839089217, 0, 0);*/
-  /*-moz-transform: matrix( 2.25, 0, 0, 2.25, 0, 0);*/
-  /*-ms-transform: matrix( 2.25, 0, 0, 2.25, 0, 0);*/
-  /*-webkit-transform: matrix( 2.25, 0, 0, 2.25, 0, 0);*/
   background-color: rgb(62,64,68);
-  /*border-radius: 10px;*/
-  /*border: none;*/
   color: rgb(254, 254, 254);
   font-family: "Roboto";
   font-size: 1.4em;
@@ -525,8 +517,7 @@ select {
 &:invalid {
   color: rgb(156, 156, 156);
 }
-
-
+*/
 
 .scheduleEvent {
   background-color: black;

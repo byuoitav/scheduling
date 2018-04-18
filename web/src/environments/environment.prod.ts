@@ -20,7 +20,7 @@ export const environment = {
   slack_webhook_url: "SLACK_CHANNEL_INCOMING_WEBHOOK_URL",  // Incoming webhook address for help requests Slack channel
   tenant: 'byu.onmicrosoft.com',                            // O365 / Exchange Online "domain"
   time_slot_size: 30,                                       // Minimum number of minutes for a meeting, also size of blocks. Expected to be 15 or 30, no quotes.
-  timezone: 'Mountain Standard Time'                        // Plain-text, full timezone descriptor. Not UTC+/-##
+  timezone: 'Mountain Standard Time',                       // Plain-text, full timezone descriptor. Not UTC+/-##
   workDayEndHour: 17,
   workDayStartHour: 7
 };

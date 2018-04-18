@@ -40,7 +40,6 @@ def writeCache(array):
 
 def cache_db():
     while True:
-        #print("Caching events")
         events = GetEvents()
         writeCache(events)
         time.sleep(15)

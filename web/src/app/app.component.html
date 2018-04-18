@@ -41,6 +41,7 @@
   </div> -->
 
 </div>
+
 <div class="bookNow" *ngIf="bookEvent">
     <div class="booking-banner-background unoccupied" *ngIf="unoccupied"></div>
     <div class="booking-banner-background occupied" *ngIf="occupied"></div>
@@ -58,24 +59,30 @@
                 <div class="textarea font-serif font-size-2 white">Ad-hoc Meeting</div>
             </div>
             <div class="book-now-start-block">
-                <div id="book-now-start-label">
-                    <label class="book-now-start-label font400">START TIME</label>
-                </div>
-                <div class="book-now-start-select">
-                    <select id="newEventStartTime" [(ngModel)]="newEventStartTimeId" (change)="onStartChange($event.target.value)">
-                      <option *ngFor="let inc of validTimeIncrements" value="{{inc.id}}">{{inc.value}}</option>
-                    </select>
-                </div>
+                <mat-form-field class="book-now-start-select">
+                    <mat-select 
+                        placeholder="Start Time" 
+                        [(ngModel)]="newEventStartTimeId" 
+                        (change)="onStartChange($event.value)"> 
+
+                        <mat-option *ngFor="let inc of validTimeIncrements" [value]="inc.id">
+                            {{inc.value}}
+                        </mat-option>
+                    </mat-select>
+                </mat-form-field>
             </div>
             <div class="book-now-end-block">
-                <div id="book-now-end-label">
-                    <label class="book-now-end-label font400">END TIME</label>
-                </div>
-                <div class="book-now-end-select">
-                    <select id="newEventEndTime" [(ngModel)]="newEventEndTimeId" (change)="getNewEndTime($event.target.value)">
-                      <option *ngFor="let inc of validTimeIncrements" value="{{inc.id}}">{{inc.value}}</option>
-                    </select>
-                </div>
+                <mat-form-field class="book-now-end-select">
+                    <mat-select 
+                        placeholder="End Time" 
+                        [(ngModel)]="newEventEndTimeId" 
+                        (change)="onEndChange($event.value)"> 
+
+                        <mat-option *ngFor="let inc of validTimeIncrements | slice:1" [value]="inc.id">
+                            {{inc.value}}
+                        </mat-option>
+                    </mat-select>
+                </mat-form-field>
             </div>
         </div>
     </div>

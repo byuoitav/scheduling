@@ -1,5 +1,5 @@
 export const environment = {
-  allow_book_now_function: false,
+  allow_book_now_function: true,
   clientId: 'MICROSOFT_APP_ID',
   clientSecret: 'PASSWORD_FOR_SPECIFIED_APP_ID',            // Client Secret for identity registered with API provider (i.e. https://apps.dev.microsoft.com)
   debug: true,                                              // True/false to control whether debug statements show in logs and/or console messages
@@ -15,12 +15,12 @@ export const environment = {
   production: false,                                        // If false, system is a development environment. Used for angular.
   redirect_url: 'http://localhost:8080',                    // This URL must be registered with the API provider (i.e. https://apps.dev.microsoft.com)
   resource_id: 'OUTLOOK/O365 RESOURCE_ID',                  // For the server/services
-  resource_name: 'OUTLOOK/O365 RESOURCE FRIENDLY NAME',     // For the humans
+  resource_name: 'ITB 1106',                                // For the humans
   showHelpButton: false,                                  // If false, hide the '?' button in the UI
   slack_webhook_url: "SLACK_CHANNEL_INCOMING_WEBHOOK_URL",  // Incoming webhook address for help requests Slack channel
   tenant: 'byu.onmicrosoft.com',                            // O365 / Exchange Online "domain"
   time_slot_size: 30,                                       // Minimum number of minutes for a meeting, also size of blocks. Expected to be 15 or 30, no quotes.
-  timezone: 'Mountain Standard Time'                        // Plain-text, full timezone descriptor. Not UTC+/-##
+  timezone: 'Mountain Standard Time',                       // Plain-text, full timezone descriptor. Not UTC+/-##
   workDayEndHour: 17,
   workDayStartHour: 7
 };
