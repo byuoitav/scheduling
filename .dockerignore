@@ -1,0 +1,17 @@
+# compilied python files 
+__pycache__
+*/__pycache__
+
+# node
+node_modules
+*/node_modules
+
+# sqlite files
+*.db
+
+.git
+.glide
+docker
+
+# mac finder files
+.DS_Store

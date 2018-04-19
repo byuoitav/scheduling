@@ -6,14 +6,12 @@ import os
 import sqlite3
 import threading
 import time
-from flask import Flask, abort, request, g
+from flask import Flask, abort, request, g, send_from_directory
 from flask.views import MethodView
 from flask_cors import CORS
 from flask_restplus import Api, Resource, fields
 from exchange.calendarModel import CalendarField, ConversationId, EffectiveRights, Mailbox, Attendee, CalendarItem, Calendar
 from exchange.utils import GetEvents, CreateCalendarEvent, DeleteCalendarEvent
-#from exchange.dbo import *
-#import json
 
 loop = None
 dbname = "events.db"
@@ -46,9 +44,10 @@ def cache_db():
 
 @app.before_first_request
 def startCaching():
-    db = initdb_command()
-    thread = threading.Thread(target=cache_db)
-    thread.start()
+    #db = initdb_command()
+    #thread = threading.Thread(target=cache_db)
+    #thread.start()
+    pass
 
 CORS(app)
 
@@ -195,7 +194,6 @@ class CalendarDAO(object):
 
 DAO = CalendarDAO()
 
-
 @calns_v1_0.route('/events', methods=['GET', 'POST'])
 class EventList(Resource):
     @calns_v1_0.doc('get_events')
@@ -258,6 +256,16 @@ class Event(Resource):
     def delete(self, item_id):
         '''Delete specified resource'''
         return DAO.delete(item_id)
+
+# serve the static files
+@app.route('/web/')
+def serve_web_index(filename=None):
+    return send_from_directory("web-dist", "index.html")
+
+@app.route('/web/<path:filename>')
+def serve_web_files(filename):
+    return send_from_directory("web-dist", filename.split('/', 1)[-1])
+
 
 @app.teardown_appcontext
 def close_connection(exception):
