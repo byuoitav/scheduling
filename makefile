@@ -69,7 +69,7 @@ docker-x86: $(NG1)-dist
 ifeq "$(BRANCH)" "master"
 	$(eval BRANCH=development)
 endif
-	$(DOCKER_BUILD) --build-arg NAME=$(NAME) -f $(DOCKER_FILE) -t $(ORG)/$(NAME):$(BRANCH) .
+	$(DOCKER_BUILD) -f $(DOCKER_FILE) -t $(ORG)/$(NAME):$(BRANCH) .
 	@echo logging in to dockerhub...
 	@$(DOCKER_LOGIN)
 	$(DOCKER_PUSH) $(ORG)/$(NAME):$(BRANCH)
@@ -81,10 +81,10 @@ docker-arm: $(NG1)-dist
 ifeq "$(BRANCH)" "master"
 	$(eval BRANCH=development)
 endif
-	$(DOCKER_BUILD) --build-arg NAME=$(NAME) -f $(DOCKER_FILE_ARM) -t $(ORG)/rpi-$(NAME):$(BRANCH) .
+	$(DOCKER_BUILD) -f $(DOCKER_FILE_ARM) -t $(ORG)/$(NAME)-arm:$(BRANCH) .
 	@echo logging in to dockerhub...
 	@$(DOCKER_LOGIN)
-	$(DOCKER_PUSH) $(ORG)/rpi-$(NAME):$(BRANCH)
+	$(DOCKER_PUSH) $(ORG)/$(NAME)-arm:$(BRANCH)
 ifeq "$(BRANCH)" "development"
 	$(eval BRANCH=master)
 endif

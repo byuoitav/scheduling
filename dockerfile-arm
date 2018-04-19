@@ -1,16 +1,25 @@
-FROM resin/armhf-alpine
-#FROM byuoitav/arm32v6-alpine
+FROM resin/raspberrypi3-alpine-python:slim
 MAINTAINER Daniel Randall <danny_randall@byu.edu>
 
-ARG NAME
-ENV name=${NAME}
+# Non-secret ENV variables
+ENV FLASK_APP="server.py"
 
-COPY ${name}-arm ${name}-arm 
-COPY version.txt version.txt
+RUN ["cross-build-start"]
+
+# add deps
+RUN apk --no-cache update
+RUN apk --no-cache --virtual .build-deps add build-base libffi-dev libxml2-dev openssl-dev && \
+    apk --no-cache add libxslt-dev && \
+    pip install maya flask flask_cors flask_restplus exchangelib lxml && \
+    apk del .build-deps
+
+RUN ["cross-build-end"]
 
 # add any required files/folders here
-COPY blueberry-dist blueberry-dist
-COPY cherry-dist cherry-dist
-COPY redirect.html redirect.html
+COPY server.py server.py
+COPY dbo.py dbo.py
+COPY exchange exchange
+COPY web-dist web-dist
 
-ENTRYPOINT ./${name}-arm
+EXPOSE 5000
+ENTRYPOINT flask run --host=0.0.0.0

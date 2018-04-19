@@ -1,6 +1,9 @@
 FROM python:alpine
 MAINTAINER Daniel Randall <danny_randall@byu.edu>
 
+# Non-secret ENV variables
+ENV FLASK_APP="server.py"
+
 # add deps
 RUN apk --no-cache update
 RUN apk --no-cache --virtual .build-deps add build-base libffi-dev libxml2-dev openssl-dev && \
@@ -14,4 +17,5 @@ COPY dbo.py dbo.py
 COPY exchange exchange
 COPY web-dist web-dist
 
-ENTRYPOINT export FLASK_APP="server.py" && flask run --host=0.0.0.0
+EXPOSE 5000
+ENTRYPOINT flask run --host=0.0.0.0
