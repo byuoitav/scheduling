@@ -3,8 +3,9 @@ MAINTAINER Daniel Randall <danny_randall@byu.edu>
 
 # add deps
 RUN apk --no-cache update
-RUN apk --no-cache --virtual .build-deps add build-base libffi-dev libxml2-dev openssl-dev libxslt-dev && \
-    pip install maya flask flask_cors flask_restplus exchangelib && \
+RUN apk --no-cache --virtual .build-deps add build-base libffi-dev libxml2-dev openssl-dev && \
+    apk --no-cache add libxslt-dev && \
+    pip install maya flask flask_cors flask_restplus exchangelib lxml && \
     apk del .build-deps
 
 # add any required files/folders here
