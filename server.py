@@ -6,7 +6,7 @@ import os
 import sqlite3
 import threading
 import time
-from flask import Flask, abort, request, g, send_from_directory
+from flask import Flask, abort, request, g, send_from_directory, jsonify
 from flask.views import MethodView
 from flask_cors import CORS
 from flask_restplus import Api, Resource, fields
@@ -19,9 +19,7 @@ dbname = "events.db"
 app = Flask(__name__)
 
 def writeCache(array):
-    #sql = ''' INSERT INTO events(end, start, subject, _end_timezone, _start_timezone, adjacent_meeting_count, allow_new_time_proposal, appointment_reply_time, appointment_sequence_number, body, changekey, conference_type, conflicting_meeting_count, culture, datetime_created, datetime_received, datetime_sent, display_to, duration, has_attachments, importance, is_all_day, is_associated, is_cancelled, is_draft, is_from_me, is_meeting, is_recurring, is_resend, is_response_requested, is_submitted, is_unmodified, item_class, item_id, last_modified_name, last_modified_time, legacy_free_busy_status, location, meeting_request_was_sent, mime_content, my_response_type, reminder_due_by, reminder_is_set, reminder_minutes_before_start, sensitivity, size, text_body, type, uid) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) '''
     sql = ''' INSERT INTO events(end, start, subject, body, conflicting_meeting_count, display_to, duration, location, type, uid) VALUES(?,?,?,?,?,?,?,?,?,?) '''
-    #print (len(array))
     db = connect_db()
     cur = db.cursor()
     for o in array:
@@ -30,7 +28,6 @@ def writeCache(array):
             e = (str(o.end)).replace(" ","T")
             smaya = maya.parse(s).datetime()
             emaya = maya.parse(e).datetime()
-            #cur.execute(sql,(emaya,smaya,str(o.subject),str(o.uid)))
             cur.execute(sql,(emaya, smaya, o.subject, o.body,o.conflicting_meeting_count,o.display_to,o.duration,o.location,o.type,o.uid))
             db.commit()
         except:
@@ -44,6 +41,7 @@ def cache_db():
 
 @app.before_first_request
 def startCaching():
+    ## TODO uncomment
     #db = initdb_command()
     #thread = threading.Thread(target=cache_db)
     #thread.start()
@@ -52,11 +50,6 @@ def startCaching():
 CORS(app)
 
 api = Api(app, version='1.0', title='Exchange Resource Proxy', description='Proxy for exchange calendar resources')
-
-# TODO: Implement HATEOAS
-
-# TODO: Fix swagger demo representation
-
 
 def connect_db():
     rv = sqlite3.connect(dbname)
@@ -101,9 +94,7 @@ root = api.namespace('v1.0', description='')
 calns_v1_0 = api.namespace('v1.0/exchange/calendar/', description='Calendar operations')
 
 event = api.model('event', {
-  #'end': fields.DateTime(required=True, readOnly=False, description=""),
   'end': fields.String(required=True, readOnly=False, description=""),
-  #'start': fields.DateTime(required=True, readOnly=False, description=""),
   'start': fields.String(required=True, readOnly=False, description=""),
   'subject': fields.String(required=True, readOnly=False, description=""),
 
@@ -186,10 +177,7 @@ class CalendarDAO(object):
       return CreateCalendarEvent(data['Subject'],data['Start'],data['End'])
 
     def delete(self,eventId):
-      #for event in self.events:
-          #if event['id'] == eventId:
       return DeleteCalendarEvent(eventId)
-      #api.abort(404, "Event {} doesn't exist".format(eventId))
 
 
 DAO = CalendarDAO()
@@ -209,7 +197,6 @@ class EventList(Resource):
     def get(self):
         '''List all events'''
         return DAO.refreshFromDb()
-        #return DAO.refresh()
 
     @calns_v1_0.doc('create_event')
     @calns_v1_0.marshal_list_with(event)
@@ -229,7 +216,6 @@ class EventList(Resource):
     def post(self):
         '''Creates an event'''
         data = request.get_json()
-        # return CreateCalendarEvent(subject=data.subject,start=data['start'],end=data.end)
         return DAO.create_event(data)
 
 
@@ -265,6 +251,14 @@ def serve_web_index(filename=None):
 @app.route('/web/<path:filename>')
 def serve_web_files(filename):
     return send_from_directory("web-dist", filename.split('/', 1)[-1])
+
+@app.route('/env/')
+def returnEnvVars():
+    print("here")
+    env = {}
+    env['hostname'] = os.getenv("PI_HOSTNAME")
+    env['allowbooknow'] = os.getenv("ALLOW_BOOK_NOW")
+    return jsonify(env)
 
 
 @app.teardown_appcontext

@@ -1,4 +1,9 @@
 export const environment = {
+  production: false,
+};
+
+/*
+export const environment = {
   allow_book_now_function: false,
   clientId: 'MICROSOFT_APP_ID',
   clientSecret: 'PASSWORD_FOR_SPECIFIED_APP_ID',            // Client Secret for identity registered with API provider (i.e. https://apps.dev.microsoft.com)
@@ -24,4 +29,4 @@ export const environment = {
   workDayEndHour: 17,
   workDayStartHour: 7
 };
-
+*/

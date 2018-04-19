@@ -6,8 +6,6 @@ import { SimpleTimer } from 'ng2-simple-timer';
 import { environment } from '../environments/environment';
 import { Event, Timeslot } from './model/o365.model';
 
-//import { IKeyboardLayout, MD_KEYBOARD_LAYOUTS, MdKeyboardComponent, MdKeyboardRef, MdKeyboardService } from '@ngx-material-keyboard/core';
-
 export class Resource {
   id: string;
   busy: boolean;
@@ -21,18 +19,28 @@ export class TimeIncrement {
   dateTimeValue: Date;
 }
 
+export class ENV {
+    allowbooknow: boolean;
+    hostname: string;
+
+    building: string;
+    room: string;
+}
+
+/*
 const RESOURCE: Resource = {
   id: environment.hostname,
   name: environment.resource_name,
   o365Name: environment.resource_id,
   busy: false
 }
-const hostname = environment.hostname;
-declare var newEvent: Event;
+*/
+//const hostname = environment.hostname;
+//declare var newEvent: Event;
 
-const NOEVENTS_MESSAGES: string[] = ["No Events Today", "Your schedule is clear", "My schedule is wide open"]
+const NOEVENTS_MESSAGES: string[] = ["No Events Today", "My schedule is clear", "My schedule is wide open"]
 
-const TIMEZONE = environment.timezone;
+//const TIMEZONE = environment.timezone;
 declare var timeoutID: number;
 declare var timeoutTTL: number;
 
@@ -45,10 +53,12 @@ declare var timeoutTTL: number;
 
 export class AppComponent implements OnInit {
 
-  debug = environment.debug;
+  env: ENV;
+  url: string;
+
   transitionTimer: SimpleTimer;
   controller = this.controller;
-  allowBookNowFunction = environment.allow_book_now_function;
+//  allowBookNowFunction = environment.allow_book_now_function;
   bookEvent: boolean;
   calendarWorkdayEndHour: number;
   calendarWorkdayStartHour: number;
@@ -70,7 +80,7 @@ export class AppComponent implements OnInit {
   LOCALE = "en-us";
   modalTransitionTimerCounter = 0;
   modalTransitionTimerID = "modalTransitionTimer";
-  modalTimeout = environment.popupWindowTimeout;
+  modalTimeout = 2;
   newEvent: Event;
   //newEventTitle: string;
   newEventTitle = "Ad-hoc Meeting";
@@ -83,22 +93,20 @@ export class AppComponent implements OnInit {
   numTimeslots: number = 0;
   occupied: boolean;
   refHours: string[] = [];
-  resource = RESOURCE;
+//  resource = RESOURCE;
   restartRequested: boolean;
   showAgenda: boolean;
-  showHelpButton = environment.showHelpButton;
+//  showHelpButton = environment.showHelpButton;
   showWaitSpinner: boolean;
   selectedEvent: Event;
   selectedStartValue: number;
-  timeIncrement = environment.time_slot_size; // minutes to increment select boxes by
+  timeIncrement = 30; // minutes to increment select boxes by
   timeSlots: Timeslot[] = [];
   title = 'Room Scheduler';
   schedulingWindow = 5; // minutes after a time window start time when the resource still be scheduled
   unoccupied: boolean;
   validTimeIncrements: TimeIncrement[] = [];
   percentOfDayExpended: number;
-
-//  private _keyboardRef: MdKeyboardRef<MdKeyboardComponent>;
 
   darkTheme: boolean;
 
@@ -110,24 +118,21 @@ export class AppComponent implements OnInit {
 
   defaultLocale: string;
 
-  layout: string;
+  constructor(private http: HttpClient) {
+    let base = location.origin.split(':');
+    this.url = base[0] + ':' + base[1];
+    console.log("this.url", this.url)
 
-  layouts: {
-    name: string;
-//    layout: IKeyboardLayout;
-  }[];
+    this.http.get<ENV>(this.url + ":5000/env").subscribe(data => {
+        this.env = data;
+        let split = this.env.hostname.split('-')
 
-  /*
-  get keyboardVisible(): boolean {
-    return this._keyboardService.isOpened;
+        this.env.building = split[0];
+        this.env.room = split[1];
+
+        console.log("env", this.env)
+    });
   }
- */
-
-  constructor(
-//      private _keyboardService: MdKeyboardService,
-    @Inject(LOCALE_ID) public locale,
-//    @Inject(MD_KEYBOARD_LAYOUTS) private _layouts,
-    private http: HttpClient) { }
 
   ngOnInit(): void {
     window.addEventListener('load', function(){
@@ -437,6 +442,7 @@ export class AppComponent implements OnInit {
     return ret;
   }
 
+  /*
   deriveVariablesFromHostname(res: Resource): void {
     var buildingAndRoom = hostname.split(" ", 2);
     var building = buildingAndRoom[0];
@@ -447,6 +453,7 @@ export class AppComponent implements OnInit {
     res.name = building + " " + room;
     res.o365Name = res.id;
   }
+  */
   durationString(selectedEvent): string {
     var duration = "";
     var Date_Start = new Date(selectedEvent.start);
@@ -491,7 +498,7 @@ export class AppComponent implements OnInit {
   helpRequest(): void {
     this.helpPressed = false;
     this.helpRequested = true;
-    var resp = this.http.post(environment.slack_webhook_url, "{\"text\":\"Help request from " + this.resource.name + "\"}").subscribe();
+//    var resp = this.http.post(environment.slack_webhook_url, "{\"text\":\"Help request from " + this.resource.name + "\"}").subscribe();
     ////console.log(resp);
     this.startScreenResetTimeout(3);
   }

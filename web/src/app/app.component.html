@@ -6,7 +6,7 @@
     <div class="unoccupiedBanner" *ngIf="unoccupied" (click)="reset()"></div>
     <div class="occupiedBanner" *ngIf="occupied" (click)="reset()"></div>
     <div class="roomTitle">
-        {{resource.name}}
+        {{env.building}} {{env.room}}
     </div>
     <div class="availability" *ngIf="unoccupied">
         AVAILABLE
