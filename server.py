@@ -41,11 +41,9 @@ def cache_db():
 
 @app.before_first_request
 def startCaching():
-    ## TODO uncomment
-    #db = initdb_command()
-    #thread = threading.Thread(target=cache_db)
-    #thread.start()
-    pass
+    db = initdb_command()
+    thread = threading.Thread(target=cache_db)
+    thread.start()
 
 CORS(app)
 
@@ -254,7 +252,6 @@ def serve_web_files(filename):
 
 @app.route('/env/')
 def returnEnvVars():
-    print("here")
     env = {}
     env['hostname'] = os.getenv("PI_HOSTNAME")
     env['allowbooknow'] = os.getenv("ALLOW_BOOK_NOW")

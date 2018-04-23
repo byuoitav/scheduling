@@ -6,7 +6,7 @@
     <div class="unoccupiedBanner" *ngIf="unoccupied" (click)="reset()"></div>
     <div class="occupiedBanner" *ngIf="occupied" (click)="reset()"></div>
     <div class="roomTitle">
-        {{env.building}} {{env.room}}
+        {{env?.building}} {{env?.room}}
     </div>
     <div class="availability" *ngIf="unoccupied">
         AVAILABLE
@@ -27,7 +27,7 @@
     <div class="buttonBarBackground"></div>
     <div class="buttonWrapper">
         <div *ngIf="showHelpButton" (click)="helpClick()" class="helpButton font-size-10 font-sans">?</div>
-        <div *ngIf="allowBookNowFunction" class="bookNowButton" (click)="bookNow()">
+        <div *ngIf="env?.allowbooknow" class="bookNowButton" (click)="bookNow()">
             <div class="plusIcon buttonIcon"></div>
             <div class="button-label">BOOK NOW</div>
         </div>
@@ -108,7 +108,7 @@
     <div class="agenda-banner unoccupied" *ngIf="unoccupied">
         <div class="schedule-back-x" (click)="reset()"></div>
         <div class="subpage-title-booking">
-            {{resource.name}} Schedule
+            {{env?.building}} {{env?.room}} Schedule
         </div>
         <!--<div class="book-now-clock-small">
       {{ date | amDateFormat:'h:mm'}}

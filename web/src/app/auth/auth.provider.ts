@@ -29,13 +29,16 @@ export class AuthProvider {
 
     private getConfig(): adal.Config {
 
+        /*
         let config: adal.Config = {
-            tenant: environment.tenant,
-            clientId: environment.clientId,
+            tenant: "byu.onmicrosoft.com",
+//            clientId: environment.clientId,
             postLogoutRedirectUri: window.location.origin + '/',
             redirectUri: window.location.origin + '/'
         };
-        return config;
+       */
+       // return config;
+       return null;
     }
 
     private extend(context: adal.AuthenticationContext): any {

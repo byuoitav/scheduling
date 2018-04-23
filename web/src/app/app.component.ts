@@ -22,25 +22,16 @@ export class TimeIncrement {
 export class ENV {
     allowbooknow: boolean;
     hostname: string;
+    timezone: string;
 
     building: string;
     room: string;
 }
 
-/*
-const RESOURCE: Resource = {
-  id: environment.hostname,
-  name: environment.resource_name,
-  o365Name: environment.resource_id,
-  busy: false
-}
-*/
-//const hostname = environment.hostname;
 //declare var newEvent: Event;
 
 const NOEVENTS_MESSAGES: string[] = ["No Events Today", "My schedule is clear", "My schedule is wide open"]
 
-//const TIMEZONE = environment.timezone;
 declare var timeoutID: number;
 declare var timeoutTTL: number;
 
@@ -53,12 +44,12 @@ declare var timeoutTTL: number;
 
 export class AppComponent implements OnInit {
 
+  // new env vars
   env: ENV;
   url: string;
 
   transitionTimer: SimpleTimer;
   controller = this.controller;
-//  allowBookNowFunction = environment.allow_book_now_function;
   bookEvent: boolean;
   calendarWorkdayEndHour: number;
   calendarWorkdayStartHour: number;
@@ -93,7 +84,6 @@ export class AppComponent implements OnInit {
   numTimeslots: number = 0;
   occupied: boolean;
   refHours: string[] = [];
-//  resource = RESOURCE;
   restartRequested: boolean;
   showAgenda: boolean;
 //  showHelpButton = environment.showHelpButton;
@@ -121,7 +111,6 @@ export class AppComponent implements OnInit {
   constructor(private http: HttpClient) {
     let base = location.origin.split(':');
     this.url = base[0] + ':' + base[1];
-    console.log("this.url", this.url)
 
     this.http.get<ENV>(this.url + ":5000/env").subscribe(data => {
         this.env = data;
