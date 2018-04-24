@@ -63,7 +63,7 @@ deps:
 	$(PIP_INSTALL) flask_restplus 
 	$(PIP_INSTALL) exchangelib 
 
-docker: docker-x86
+docker: docker-x86 docker-arm
 
 docker-x86: $(NG1)-dist
 ifeq "$(BRANCH)" "master"
