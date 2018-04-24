@@ -17,7 +17,17 @@ def GetEvents():
 
     credentials = ServiceAccount(username=uname, password=pw)
 
-    resource = os.getenv("O365_RESOURCE_ID")
+    hostname = os.getenv("PI_HOSTNAME")
+    if len(hostname) == 0:
+        print("\n\nunable to get events. error: $PI_HOSTNAME not set\n\n")
+        return
+
+    split = hostname.split("-") 
+    if len(split) != 3:
+        print("\n\nunable to get events. error: $PI_HOSTNAME is set incorrectly. value= {}\n\n".format(hostname))
+        return
+
+    resource = split[0] + "_" + split[1]
     domain = os.getenv("O365_DOMAIN")
     addr = str.format("{0}@{1}",resource,domain)
 
@@ -121,9 +131,22 @@ def CreateCalendarEvent(subject,start,end):
 
     credentials = ServiceAccount(username=uname, password=pw)
 
-    resource = os.getenv("O365_RESOURCE_ID")
+    hostname = os.getenv("PI_HOSTNAME")
+    if len(hostname) == 0:
+        print("\n\nunable to create event. error: $PI_HOSTNAME not set\n\n")
+        return
+
+    split = hostname.split("-") 
+    if len(split) != 3:
+        print("\n\nunable to create event. error: $PI_HOSTNAME is set incorrectly. value= {}\n\n".format(hostname))
+        return
+
+    resource = split[0] + "_" + split[1]
     domain = os.getenv("O365_DOMAIN")
     addr = str.format("{0}@{1}",resource,domain)
+    #print("resource: {}".format(resource))
+    #print("domain: {}".format(domain))
+    #print("addr: {}".format(addr))
 
     account = Account(primary_smtp_address=addr, credentials=credentials, autodiscover=True, access_type=DELEGATE)
 
@@ -154,7 +177,17 @@ def DeleteCalendarEvent(eventid):
 
     credentials = ServiceAccount(username=uname, password=pw)
 
-    resource = os.getenv("O365_RESOURCE_ID")
+    hostname = os.getenv("PI_HOSTNAME")
+    if len(hostname) == 0:
+        print("\n\nunable to delete event. error: $PI_HOSTNAME not set\n\n")
+        return
+
+    split = hostname.split("-") 
+    if len(split) != 3:
+        print("\n\nunable to delete event. error: $PI_HOSTNAME is set incorrectly. value= {}\n\n".format(hostname))
+        return
+
+    resource = split[0] + "_" + split[1]
     domain = os.getenv("O365_DOMAIN")
     addr = str.format("{0}@{1}",resource,domain)
 

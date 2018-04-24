@@ -48,7 +48,7 @@
     <div class="booking-banner">
         <div class="cancellation-back-arrow" (click)="bookNewEvent()"></div>
         <div class="subpage-title-booking">
-            Booking {{resource.name}} for {{date | amDateFormat:'dddd, MMM DD'}}
+            Booking {{env.building}} {{env.room}} for {{date | amDateFormat:'dddd, MMM DD'}}
         </div>
     </div>
     <div class="book-now-container-background"></div>
@@ -117,7 +117,7 @@
     <div class="agenda-banner occupied" *ngIf="occupied">
         <div class="schedule-back-x" (click)="reset()"></div>
         <div class="subpage-title-booking">
-            {{resource.name}} Schedule
+            {{env.building}} {{env.room}} Schedule
         </div>
         <!--<div class="book-now-clock-small">
       {{ date | amDateFormat:'h:mm'}}
@@ -177,12 +177,12 @@
 <div class="cancelEvent" *ngIf="cancellation">
     <div class="cancel-banner" *ngIf="unoccupied">
         <div class="cancel-subpage-title">
-            Canceling {{resource.name}} for {{date | amDateFormat:'dddd, MMM DD'}}
+            Canceling {{env.building}} {{env.room}} for {{date | amDateFormat:'dddd, MMM DD'}}
         </div>
     </div>
     <div class="cancel-banner" *ngIf="occupied">
         <div class="cancel-subpage-title">
-            Canceling {{resource.name}} for {{date | amDateFormat:'dddd, MMM DD'}}
+            Canceling {{env.building}} {{env.room}} for {{date | amDateFormat:'dddd, MMM DD'}}
         </div>
     </div>
     <div class="cancelEvent-message-background"></div>

@@ -3,7 +3,7 @@ import { DOCUMENT } from '@angular/platform-browser';
 import { HttpClient, HttpEvent, HttpInterceptor, HttpHandler, HttpRequest, HttpHeaders } from '@angular/common/http';
 import { SimpleTimer } from 'ng2-simple-timer';
 
-import { environment } from '../environments/environment';
+// import { environment } from '../environments/environment';
 import { Event, Timeslot } from './model/o365.model';
 
 export class Resource {
@@ -38,7 +38,7 @@ declare var timeoutTTL: number;
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
-  styleUrls: ['./app.component.css','./keyboard.css']
+  styleUrls: ['./app.component.css',]
 })
 
 
@@ -637,9 +637,11 @@ export class AppComponent implements OnInit {
   }
   submitEventForm(): void {
     this.showWaitSpinner=true;
-    var e = this.newEventEndTimeValue;
-    var s = this.newEventStartTimeValue;
-    this.submitEvent("Ad-hoc Meeting", s,e);
+    let s = this.validTimeIncrements[this.newEventStartTimeId].value;
+    let e = this.validTimeIncrements[this.newEventEndTimeId].value;
+
+    console.log("startTime", s, "sendTime", e)
+    this.submitEvent("Ad-hoc Meeting", s, e);
   }
   submitEvent(tmpSubject: string, tmpStartTime: string, tmpEndTime: string): void {
     var req = new Event();
@@ -692,13 +694,15 @@ export class AppComponent implements OnInit {
     ///////
     var url = 'http://localhost:5000/v1.0/exchange/calendar/events';
 
-    var resp = this.http.post(url,JSON.stringify(req),{headers: new HttpHeaders().set('Content-Type', 'application/json')}).subscribe();
-
-    //this.restartRequested = true;
-    this.startScreenResetTimeout(1);
-    //this.refreshData();
-    //window.location.reload(false);
+    var resp = this.http.post(url,JSON.stringify(req),{headers: new HttpHeaders().set('Content-Type', 'application/json')}).subscribe(resp => {
+        console.log("successfully posted event. response: ", resp);
+        this.refreshData();
+        location.reload()
+    }, err => {
+        console.log("error posting event: ", err)
+    });
   }
+
   subscribeHelpTimer(): void {
     if (this.modalTransitionTimerID) {
       // Unsubscribe if timer Id is defined
