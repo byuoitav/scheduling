@@ -1,0 +1,18 @@
+version: '3'
+services:
+    scheduling:
+        image: byuoitav/scheduling:development
+        ports:
+            - "5000:5000"
+        environment:
+            - ALLOW_BOOK_NOW=$ALLOW_BOOK_NOW
+            - EXCHANGE_PROXY_USERNAME=$EXCHANGE_PROXY_USERNAME
+            - EXCHANGE_PROXY_PASSWORD=$EXCHANGE_PROXY_PASSWORD
+            - O365_DOMAIN=$O365_DOMAIN
+            - PI_HOSTNAME=$PI_HOSTNAME
+        network_mode: "host"
+        restart: always
+        tty: true
+        logging:
+            options:
+                max-size: "100m"
