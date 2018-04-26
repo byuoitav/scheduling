@@ -124,15 +124,6 @@
     </div>-->
     </div>
     <div id="agenda-lower-section-wrapper" class="agenda-lower-section-wrapper">
-        <!-->
-        <div id="agenda-time-reference-sidebar" class="agenda-time-reference-sidebar font-sans white" *ngIf="noEvents == false">
-            <ul id="refHours" class="refHours" (scroll)="scrollAgendaEvent($event.target)">
-                <li *ngFor="let hour of refHours" class="refHours-hour">
-                    <div class="refHours-view-row-container">{{hour}}</div>
-                </li>
-            </ul>
-        </div>
-        -->
         <div id="current-time-bar-wrapper" class="current-time-bar-wrapper" *ngIf="noEvents == false">
             <div class="current-time-bar-top" [style.top]="percentOfDayExpended">
 
@@ -147,7 +138,7 @@
             </div>
         </div>
         <div class="agenda-view-table" *ngIf="noEvents == false">
-            <ul id="agenda" class="agenda" (scroll)="scrollAgendaEvent($event.target)">
+            <ul id="agenda" class="agenda"> 
                 <li *ngFor="let event of events" class="agenda-view-row-unavailable" ng-class="availabilityClass(event)">
                     <div class="agenda-view-row-container" ng-class="availabilityClass(event)">
                         <div class="agenda-row-section1 font-serif font-size-2 white">
