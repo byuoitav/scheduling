@@ -27,8 +27,6 @@ export class ENV {
     room: string;
 }
 
-//declare let newEvent: Event;
-
 const NOEVENTS_MESSAGES: string[] = ["No Events Today", "My schedule is clear", "My schedule is wide open"]
 
 declare var timeoutID: number;
@@ -197,8 +195,8 @@ export class AppComponent implements OnInit {
       var newDate = new Date()
       newDate.setHours(i);
     }*/
-    this.refreshData();
 
+    this.refreshData();
     setInterval(() => {
         this.refreshData();
     }, 20000)
@@ -539,13 +537,16 @@ export class AppComponent implements OnInit {
     }, 1000);
   }
   refreshData(): void {
-    console.log("refreshing event data")
     this.populateRefHours();
     this.events = [];
     this.noEvents = true;
 
-    let url = 'http://localhost:5000/v1.0/exchange/calendar/events';
+    let url = this.url + ":5000/v1.0/exchange/calendar/events";
+    console.log("refreshing event data from", url)
+    
     this.http.get<Event[]>(url).subscribe(data => {
+        console.log("events", data);
+
         for (let event of data) {
             let e = new Event();
             e.subject = event.subject;
@@ -566,6 +567,8 @@ export class AppComponent implements OnInit {
         });
 
        this.currentMeeting();
+    }, err => {
+        console.log("error getting events", err)
     });
   }
   reset(): void {
@@ -702,7 +705,8 @@ export class AppComponent implements OnInit {
     /////////
     ///  SUBMIT
     ///////
-    let url = 'http://localhost:5000/v1.0/exchange/calendar/events';
+    let url = this.url + ":5000/v1.0/exchange/calendar/events";
+    console.log("posting", req, "to", url);
 
     let resp = this.http.post(url,JSON.stringify(req),{headers: new HttpHeaders().set('Content-Type', 'application/json')}).subscribe(resp => {
         console.log("successfully posted event. response: ", resp);
