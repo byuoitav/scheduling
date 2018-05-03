@@ -66,7 +66,7 @@
                         (change)="onStartChange($event.value)"> 
 
                         <mat-option *ngFor="let inc of validTimeIncrements | slice:0:-1" [value]="inc.id">
-                            {{inc.value}}
+                            {{inc.value | amDateFormat:'h:mm a'}}
                         </mat-option>
                     </mat-select>
                 </mat-form-field>
@@ -79,7 +79,7 @@
                         (change)="onEndChange($event.value)"> 
 
                         <mat-option *ngFor="let inc of validTimeIncrements | slice:1" [value]="inc.id">
-                            {{inc.value}}
+                            {{inc.value | amDateFormat:'h:mm a'}}
                         </mat-option>
                     </mat-select>
                 </mat-form-field>

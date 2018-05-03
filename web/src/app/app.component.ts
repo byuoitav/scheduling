@@ -14,8 +14,7 @@ export class Resource {
 
 export class TimeIncrement {
   id: number;
-  value: string;
-  dateTimeValue: Date;
+  value: Date;
 }
 
 export class ENV {
@@ -259,8 +258,7 @@ export class AppComponent implements OnInit {
     for (let i = 0; i < times.length; i++) {
         this.validTimeIncrements.push({
             id: i,
-            dateTimeValue: times[i],
-            value: times[i].toLocaleTimeString(this.LOCALE, this.timeOptions),
+            value: times[i],
         });
     }
   }
@@ -626,47 +624,13 @@ export class AppComponent implements OnInit {
     console.log("startTime", s, "sendTime", e)
     this.submitEvent("Ad-hoc Meeting", s, e);
   }
-  submitEvent(tmpSubject: string, tmpStartTime: string, tmpEndTime: string): void {
+  submitEvent(tmpSubject: string, startTime: Date, endTime: Date): void {
     let req = new Event();
     let today = new Date();
     let M = today.getMonth(); //month is zero-indexed
     let d = today.getDate();
     let y = today.getFullYear();
     let tzoffset = today.getTimezoneOffset();
-
-    let sH = 0;
-    let sM = 0;
-    let eH = 0;
-    let eM = 0;
-    const [starttime, startmodifier] = tmpStartTime.split(' ');
-    let [starthours, startminutes] = starttime.split(':');
-    if (starthours === '12') {
-      starthours = '00';
-    }
-    if (startmodifier === 'PM') {
-      sH = parseInt(starthours, 10) + 12;
-    }
-    else {
-      sH = parseInt(starthours)
-    }
-    sM = parseInt(startminutes);
-
-    const [endtime, endmodifier] = tmpEndTime.split(' ');
-    let [endhours, endminutes] = endtime.split(':');
-    if (endhours === '12') {
-      endhours = '00';
-    }
-    if (endmodifier === 'PM') {
-      eH = parseInt(endhours, 10) + 12;
-    }
-    else{
-      eH = parseInt(endhours)
-    }
-    eM = parseInt(endminutes);
-
-    //new Date(year, month, day, hours, minutes, seconds, milliseconds);
-    let startTime = new Date(y,M,d,sH,sM,0);
-    let endTime = new Date(y,M,d,eH,eM,0);
 
     req.subject = tmpSubject;
     req.start = new Date(startTime.getTime() - tzoffset*60000);
