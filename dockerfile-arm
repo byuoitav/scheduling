@@ -1,4 +1,4 @@
-FROM resin/raspberrypi3-alpine-python:slim
+FROM byuoitav/arm32v6-alpine:python
 MAINTAINER Daniel Randall <danny_randall@byu.edu>
 
 # Non-secret ENV variables
@@ -9,7 +9,7 @@ RUN ["cross-build-start"]
 # add deps
 RUN apk --no-cache update
 RUN apk --no-cache --virtual .build-deps add build-base libffi-dev libxml2-dev openssl-dev && \
-    apk --no-cache add libxslt-dev && \
+    apk --no-cache add libxslt-dev openssl && \
     pip install maya flask flask_cors flask_restplus exchangelib lxml && \
     apk del .build-deps
 

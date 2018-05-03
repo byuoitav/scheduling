@@ -1,4 +1,4 @@
-FROM python:alpine
+FROM python:alpine3.6
 MAINTAINER Daniel Randall <danny_randall@byu.edu>
 
 # Non-secret ENV variables
@@ -7,7 +7,7 @@ ENV FLASK_APP="server.py"
 # add deps
 RUN apk --no-cache update
 RUN apk --no-cache --virtual .build-deps add build-base libffi-dev libxml2-dev openssl-dev && \
-    apk --no-cache add libxslt-dev && \
+    apk --no-cache add libxslt-dev openssl && \
     pip install maya flask flask_cors flask_restplus exchangelib lxml && \
     apk del .build-deps
 

@@ -43,6 +43,8 @@ NPM_INSTALL=$(NPM) install
 NG_BUILD=ng build --prod --aot --build-optimizer 
 NG1=web
 
+all: build docker
+
 build: $(NG1)
 	# ng1
 	cd $(NG1) && $(NPM_INSTALL) && $(NG_BUILD) --base-href="./$(NG1)/"
@@ -69,10 +71,16 @@ docker-x86: $(NG1)-dist
 ifeq "$(BRANCH)" "master"
 	$(eval BRANCH=development)
 endif
+ifeq "$(BRANCH)" "production"
+	$(eval BRANCH=latest)
+endif
 	$(DOCKER_BUILD) -f $(DOCKER_FILE) -t $(ORG)/$(NAME):$(BRANCH) .
 	@echo logging in to dockerhub...
 	@$(DOCKER_LOGIN)
 	$(DOCKER_PUSH) $(ORG)/$(NAME):$(BRANCH)
+ifeq "$(BRANCH)" "latest"
+	$(eval BRANCH=production)
+endif
 ifeq "$(BRANCH)" "development"
 	$(eval BRANCH=master)
 endif
@@ -81,10 +89,16 @@ docker-arm: $(NG1)-dist
 ifeq "$(BRANCH)" "master"
 	$(eval BRANCH=development)
 endif
+ifeq "$(BRANCH)" "production"
+	$(eval BRANCH=latest)
+endif
 	$(DOCKER_BUILD) -f $(DOCKER_FILE_ARM) -t $(ORG)/$(NAME)-arm:$(BRANCH) .
 	@echo logging in to dockerhub...
 	@$(DOCKER_LOGIN)
 	$(DOCKER_PUSH) $(ORG)/$(NAME)-arm:$(BRANCH)
+ifeq "$(BRANCH)" "latest"
+	$(eval BRANCH=production)
+endif
 ifeq "$(BRANCH)" "development"
 	$(eval BRANCH=master)
 endif
