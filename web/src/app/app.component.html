@@ -65,7 +65,7 @@
                         [(ngModel)]="newEventStartTimeId" 
                         (change)="onStartChange($event.value)"> 
 
-                        <mat-option *ngFor="let inc of validTimeIncrements" [value]="inc.id">
+                        <mat-option *ngFor="let inc of validTimeIncrements | slice:0:-1" [value]="inc.id">
                             {{inc.value}}
                         </mat-option>
                     </mat-select>

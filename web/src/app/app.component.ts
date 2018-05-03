@@ -199,7 +199,7 @@ export class AppComponent implements OnInit {
     this.refreshData();
     setInterval(() => {
         this.refreshData();
-    }, 20000)
+    }, 15000)
   }
 
   calcTimeslots(): void {
@@ -216,84 +216,53 @@ export class AppComponent implements OnInit {
     }
   }
 
+  // populate timeslots from now until 23:30 PM
   populateTimeslots(): void {
+    this.validTimeIncrements = []
 
-        // Populate valid time scheduling window
-        let d = new Date();
-        let tomorrow = new Date();
-        tomorrow.setDate(d.getDate() + 1);
-        tomorrow.setTime(0);
+    // create first time
+    let first = new Date();
+    if (first.getMinutes() >= 30)
+        first.setMinutes(30);
+    else
+        first.setMinutes(0);
 
-        let minutes = d.getMinutes();
-        //var hours = d.getHours();
-        let m = 0;
-        if (this.timeIncrement == 15) {
-          m = (((minutes + 7.5) / 15 | 0) * 15) % 60; // Nearest 15 minute interval, rounded down
-        }
-        else {
-          m = (((minutes + 15) / 30 | 0) * 30) % 60;
-          //m = (Math.round(minutes/30) * 30) % 60;
-        }
-        //    var h = ((((minutes/105) + .5) | 0) + hours) % 24;  // Not quite right.
-        d.setMinutes(m);
-        d.setSeconds(0);
+    // create end time
+    let last = new Date();
+    last.setHours(23);
+    last.setMinutes(30);
 
-        for (let i = 0; i < this.numTimeslots; i++) {
-          let amPm = "AM";
-          let mins = d.getMinutes();
-          let hours = d.getHours();
-          if (hours > 12) {
-            amPm = "PM";
-            hours = hours - 12;
-          }
-          if ((new Date).getDay() == d.getDay()) {
-            this.validTimeIncrements.push({
-              id: i,
-              dateTimeValue: d,
-              value: d.toLocaleTimeString(this.LOCALE, this.timeOptions)
-              //value: hours.toString() + ":" + mins.toString() + " " + amPm
-            });
-          }
-          d.setMinutes(mins + this.timeIncrement);
-        }
+    // remove seconds/milliseconds from time
+    first.setSeconds(0);
+    first.setMilliseconds(0);
+    last.setSeconds(0);
+    last.setMilliseconds(0);
 
-        //Populate timeslots
-        for (let j = 0; j < 96; j++) {
-          let tmpTime1 = new Date();
-          let tmpTime2 = new Date(tmpTime1.valueOf());
-          let t2 = 0;
+    // create intervals
+    let times: Date[] = []
+    let curr = first;
 
-          let t = new Timeslot();
-          tmpTime1.setMinutes(j * 15);
+    while (curr.getTime() != last.getTime()) {
+        let time = new Date(curr.getTime());
+        times.push(time);
 
-          t.Start = tmpTime1;
-          if (j < 96) {
-            t2 = j + 1;
-          }
-          else {
-            t2 = j;
-          }
-          tmpTime2.setMinutes((j + 1) * 15);
-          t.End = tmpTime2;
+        if (curr.getMinutes() >= 30) {
+            curr.setHours(curr.getHours() + 1);
+            curr.setMinutes(0);
+        } else
+            curr.setMinutes(30);
+    }
 
-          this.timeSlots.push(t);
-          /*var h = t.Start.getHours();
-          if (t.Start.getHours() > 12) {
-            h = +(t.Start.getHours()) - 12;
-          }
+    times.push(last);
 
-
-          if (this.refHours.length <= 0) {
-            this.refHours.push(h.toPrecision(1).toString());
-          }
-          else {
-            if (this.refHours[-1].valueOf() != h.toPrecision(1).toString()) {
-              this.refHours.push(h.toPrecision(1).toString());
-            }
-          }*/
-          tmpTime1 = null;
-          tmpTime2 = null;
-        }
+    // turn times readable format
+    for (let i = 0; i < times.length; i++) {
+        this.validTimeIncrements.push({
+            id: i,
+            dateTimeValue: times[i],
+            value: times[i].toLocaleTimeString(this.LOCALE, this.timeOptions),
+        });
+    }
   }
 
   /*
@@ -516,8 +485,9 @@ export class AppComponent implements OnInit {
   onSelect(event: Event): void {
     this.selectedEvent = event;
   }
-  onStartChange(selectedStartOption): void {
-    this.newEventEndTimeId = selectedStartOption + 1;
+  onStartChange(selectedID): void {
+    if (this.newEventEndTimeId == null || selectedID >= this.newEventEndTimeId)
+        this.newEventEndTimeId = selectedID + 1;
   }
   onEndChange(selectedID): void {
       if (this.newEventStartTimeId == null || selectedID <= this.newEventStartTimeId) {
@@ -711,10 +681,14 @@ export class AppComponent implements OnInit {
     let resp = this.http.post(url,JSON.stringify(req),{headers: new HttpHeaders().set('Content-Type', 'application/json')}).subscribe(resp => {
         console.log("successfully posted event. response: ", resp);
         this.refreshData();
-        location.reload()
+        location.reload();
     }, err => {
         console.log("error posting event: ", err)
     });
+
+    setTimeout(() => {
+        location.reload();
+    }, 10000)
   }
 
   subscribeHelpTimer(): void {
