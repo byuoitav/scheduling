@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 
-#import asyncio
 import maya
 import os
 import sqlite3
 import threading
 import time
+import requests
 from flask import Flask, abort, request, g, send_from_directory, jsonify
 from flask.views import MethodView
 from flask_cors import CORS
@@ -250,12 +250,27 @@ def serve_web_index(filename=None):
 def serve_web_files(filename):
     return send_from_directory("web-dist", filename.split('/', 1)[-1])
 
-@app.route('/env/')
+@app.route('/config/')
 def returnEnvVars():
-    env = {}
-    env['hostname'] = os.getenv("PI_HOSTNAME")
-    env['allowbooknow'] = os.getenv("ALLOW_BOOK_NOW")
-    return jsonify(env)
+    # pull config from couch
+    # get auth data for couch
+    db_addr = os.getenv("DB_ADDRESS")
+    db_uname = os.getenv("DB_USERNAME")
+    db_pass = os.getenv("DB_PASSWORD")
+
+    # build url
+    url = db_addr + "/scheduling-configs/" + os.getenv("PI_HOSTNAME")
+
+    # make request
+    resp = requests.get(url, auth=(db_uname, db_pass))
+
+    # remove extra data
+    body = resp.json()
+    body['hostname'] = body['_id']
+    del body['_id']
+    del body['_rev']
+
+    return jsonify(body)
 
 
 @app.teardown_appcontext
