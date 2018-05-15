@@ -49,7 +49,7 @@
     <div class="booking-banner-background unoccupied" *ngIf="unoccupied"></div>
     <div class="booking-banner-background occupied" *ngIf="occupied"></div>
     <div class="booking-banner">
-        <div class="cancellation-back-arrow" (click)="bookNewEvent()"></div>
+        <div class="cancellation-back-arrow" (click)="reset()"></div>
         <div class="subpage-title-booking">
             Booking {{env.building}} {{env.room}} for {{date | amDateFormat:'dddd, MMM DD'}}
         </div>
@@ -65,12 +65,22 @@
                 <mat-form-field class="book-now-start-select">
                     <mat-select 
                         placeholder="Start Time" 
-                        [(ngModel)]="newEventStartTimeId" 
+                        [(ngModel)]="newEventStart"
                         (change)="onStartChange($event.value)"> 
 
-                        <mat-option *ngFor="let inc of validTimeIncrements | slice:0:-1" [value]="inc.id">
-                            {{inc.value | amDateFormat:'h:mm a'}}
-                        </mat-option>
+                        <ng-container *ngFor="let inc of validTimeIncrements | slice:0:-1">
+                            <ng-container *ngIf="inc.validStart">
+                                <mat-option [value]="inc">
+                                    {{inc.value | amDateFormat:'h:mm a'}}
+                                </mat-option>
+                            </ng-container>
+
+                            <ng-container *ngIf="!inc.validStart">
+                                <mat-option [value]="inc" disabled>
+                                    {{inc.value | amDateFormat:'h:mm a'}} [BUSY]
+                                </mat-option>
+                            </ng-container>
+                        </ng-container>
                     </mat-select>
                 </mat-form-field>
             </div>
@@ -78,12 +88,22 @@
                 <mat-form-field class="book-now-end-select">
                     <mat-select 
                         placeholder="End Time" 
-                        [(ngModel)]="newEventEndTimeId" 
+                        [(ngModel)]="newEventEnd"
                         (change)="onEndChange($event.value)"> 
 
-                        <mat-option *ngFor="let inc of validTimeIncrements | slice:1" [value]="inc.id">
-                            {{inc.value | amDateFormat:'h:mm a'}}
-                        </mat-option>
+                        <ng-container *ngFor="let inc of validTimeIncrements | slice:1">
+                            <ng-container *ngIf="inc.validEnd">
+                                <mat-option [value]="inc">
+                                    {{inc.value | amDateFormat:'h:mm a'}}
+                                </mat-option>
+                            </ng-container>
+
+                            <ng-container *ngIf="!inc.validEnd">
+                                <mat-option [value]="inc" disabled>
+                                    {{inc.value | amDateFormat:'h:mm a'}} [BUSY]
+                                </mat-option>
+                            </ng-container>
+                        </ng-container>
                     </mat-select>
                 </mat-form-field>
             </div>
@@ -168,6 +188,7 @@
         </div>
     </div>
 </div>
+
 <div class="cancelEvent" *ngIf="cancellation">
     <div class="cancel-banner" *ngIf="unoccupied">
         <div class="cancel-subpage-title">
@@ -192,6 +213,7 @@
         <div (click)="cancelPage_yes(selectedEvent)" class="cancelEvent-yes-button"></div>
     </div>
 </div>
+
 <div *ngIf="showWaitSpinner" class="modal helpModal stayOnTop" (click)="resetModal()">
 </div>
 <div *ngIf="showWaitSpinner" class="modalContentDark stayOnTop">

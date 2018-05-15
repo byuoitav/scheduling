@@ -15,6 +15,8 @@ export class Resource {
 export class TimeIncrement {
   id: number;
   value: Date;
+  validStart: boolean;
+  validEnd: boolean;
 }
 
 export class ENV {
@@ -68,12 +70,9 @@ export class AppComponent implements OnInit {
   modalTransitionTimerID = "modalTransitionTimer";
   modalTimeout = 2;
   newEvent: Event;
-  //newEventTitle: string;
   newEventTitle = "Ad-hoc Meeting";
-  newEventEndTimeId: number;
-  newEventEndTimeValue: string;
-  newEventStartTimeId: number;
-  newEventStartTimeValue: string;
+  newEventEnd: TimeIncrement;
+  newEventStart: TimeIncrement;
   noEvents: boolean;
   noEvents_message = "No Events Today";
   numTimeslots: number = 0;
@@ -158,13 +157,13 @@ export class AppComponent implements OnInit {
 
     this.refreshData();
     setInterval(() => {
-        this.refreshData();
+        if (!this.bookEvent && !this.showAgenda)
+            this.refreshData();
     }, 20000)
   }
 
   calcTimeslots(): void {
     this.numTimeslots = ( this.calendarWorkdayEndHour - this.calendarWorkdayStartHour ) * (60 / this.timeIncrement);
-
     this.populateRefHours();
     this.populateTimeslots();
   }
@@ -178,7 +177,7 @@ export class AppComponent implements OnInit {
 
   // populate timeslots from now until 23:30 PM
   populateTimeslots(): void {
-    this.validTimeIncrements = []
+    this.validTimeIncrements = [];
 
     // create first time
     let first = new Date();
@@ -217,35 +216,38 @@ export class AppComponent implements OnInit {
 
     // turn times readable format
     for (let i = 0; i < times.length; i++) {
+
+        // figure out if this time is free or not
+        let timePlusFive = new Date(times[i].getTime() + 5*60000); // add 5 minutes
+
+        let validStart = true;
+        let validEnd = true;
+
+        for (let event of this.events) {
+            if (i+1 == times.length) {
+                validStart = false;
+                break;
+            }
+
+            // decide if it's a valid start time
+            if (event.start < timePlusFive && event.end > timePlusFive) {
+                validStart = false;
+                break;
+            }
+        }
+
+        // decide if it's a valid end time increment
+        if (i == 0 || !this.validTimeIncrements[i-1].validStart)
+            validEnd = false;
+
         this.validTimeIncrements.push({
             id: i,
             value: times[i],
+            validStart: validStart,
+            validEnd: validEnd,
         });
     }
   }
-
-  /*
-  openKeyboard(locale = this.defaultLocale) {
-    this._keyboardRef = this._keyboardService.open(locale, {
-      //darkTheme: this.darkTheme,
-      //darkTheme: true,
-      darkTheme:false,
-      duration: this.duration,
-      hasAction: this.hasAction,
-      isDebug: this.isDebug
-    });
-  }
-
-  closeCurrentKeyboard() {
-    if (this._keyboardRef) {
-      this._keyboardRef.dismiss();
-    }
-  }
-  toggleDarkTheme(dark: boolean) {
-    this.darkTheme = dark;
-    this._keyboardRef.darkTheme = dark;
-  }
- */
 
   availabilityClass(e: Event): string {
     if (e.subject.toString() == 'Available') {
@@ -257,37 +259,6 @@ export class AppComponent implements OnInit {
   }
 
 
-  bookNewEvent(): void {
-    /*//this.reset();
-    var d = new Date();
-    this.bookEvent = true;
-    this.newEvent = new Event();
-    var year = d.getFullYear().toString();
-    var month = d.getMonth().toString();
-    var day = d.getDay().toString();
-    var s = "" + year + "-" + month + "-" + day + "T";
-    var e = "" + year + "-" + month + "-" + day + "T";
-    var sH = "";
-    var eH = "";
-    if (this.newEventStartAmPm === "AM") {
-      sH = (this.newEventStartHour).toString();
-    }
-    else {
-      var sI = +(this.newEventStartHour);
-      sH = (sI + 12).toString();
-    }
-    if (this.newEventEndAmPm === "AM") {
-      eH = (this.newEventEndHour).toString();
-    }
-    else {
-      var eI = +(this.newEventEndHour);
-      eH = (eI + 12).toString();
-    }
-
-    s += sH + ":" + this.newEventStartMinute + ":000";
-    e += eH + ":" + this.newEventEndMinute + ":000";*/
-    this.reset();
-  }
   bookNow(): void {
     this.reset();
     this.startScreenResetTimeout(70);
@@ -328,6 +299,7 @@ export class AppComponent implements OnInit {
       }
     }
   }
+
   currentMeeting() {
     let now = new Date();
     for (let i = 0; i < this.events.length; i++) {
@@ -338,25 +310,8 @@ export class AppComponent implements OnInit {
       }
     }
     this.currentEvent = null;
-    //console.log(this.currentEvent);
   }
-  /*getTimePeriod(d:Date): number {
-    var t = new Date(d.getDate());
-    var msIn15Min: number = 900000;
-    var secondsInADay: number = 24 * 60 * 60;
-    var hours: number = t.getHours() * 60 * 60;
-    var minutes: number = t.getMinutes() * 60;
-    var seconds: number = t.getSeconds();
-    var ms: number = (hours + minutes + seconds) * 1000;
-    var t1: number = t.getTime();
-    t.setHours(0);
-    t.setMinutes(0);
-    t.setSeconds(0);
-    var t2 = t.getTime();
-    var ret = 0;
-    ret = Math.floor((t1 - t2) / msIn15Min);
-    return ret;
-  }*/
+
   currentTimePeriod(): number { // Return time period (0<x<96) for current time
     let now = new Date();
     let msIn15Min: number = 900000;
@@ -375,18 +330,6 @@ export class AppComponent implements OnInit {
     return ret;
   }
 
-  /*
-  deriveVariablesFromHostname(res: Resource): void {
-    var buildingAndRoom = hostname.split(" ", 2);
-    var building = buildingAndRoom[0];
-    var room = buildingAndRoom[1];
-
-    res.id = building + "-" + room;
-    res.busy = false;
-    res.name = building + " " + room;
-    res.o365Name = res.id;
-  }
-  */
   durationString(selectedEvent): string {
     let duration = "";
     let Date_Start = new Date(selectedEvent.start);
@@ -444,15 +387,35 @@ export class AppComponent implements OnInit {
   onSelect(event: Event): void {
     this.selectedEvent = event;
   }
-  onStartChange(selectedID): void {
-    if (this.newEventEndTimeId == null || selectedID >= this.newEventEndTimeId)
-        this.newEventEndTimeId = selectedID + 1;
-  }
-  onEndChange(selectedID): void {
-      if (this.newEventStartTimeId == null || selectedID <= this.newEventStartTimeId) {
-          this.newEventStartTimeId = selectedID - 1;
+
+  onStartChange(selected: TimeIncrement): void {
+      if (this.newEventEnd == null || selected.id >= this.newEventEnd.id) {
+          this.newEventEnd = this.validTimeIncrements[selected.id + 1];
+      }
+
+      // check and make sure it doesn't span a bad option
+      for (let i = this.newEventStart.id; i < this.newEventEnd.id; i++) {
+          if (!this.validTimeIncrements[i].validEnd || !this.validTimeIncrements[i].validStart) {
+              this.newEventEnd = this.validTimeIncrements[selected.id + 1];
+              break;
+          }
       }
   }
+
+  onEndChange(selected: TimeIncrement): void {
+      if (this.newEventStart == null || selected.id <= this.newEventStart.id) {
+          this.newEventStart = this.validTimeIncrements[selected.id - 1];
+      }
+
+      // check and make sure it doesn't span a bad option
+      for (let i = this.newEventStart.id; i < this.newEventEnd.id; i++) {
+          if (!this.validTimeIncrements[i].validEnd || !this.validTimeIncrements[i].validStart) {
+              this.newEventStart = this.validTimeIncrements[selected.id - 1];
+              break;
+          }
+      }
+  }
+
   percent(): void {
     setInterval(function() {
       let secondsInADay = 24 * 60 * 60;
@@ -465,6 +428,7 @@ export class AppComponent implements OnInit {
       this.percentOfDayExpended = percentSeconds;
     }, 1000);
   }
+
   refreshData(): void {
     this.populateRefHours();
     this.events = [];
@@ -479,8 +443,8 @@ export class AppComponent implements OnInit {
         for (let event of data) {
             let e = new Event();
             e.subject = event.subject;
-            e.start = event.start;
-            e.end = event.end;
+            e.start = new Date(event.start);
+            e.end = new Date(event.end);
 
             this.events.push(e);
             this.noEvents = false;
@@ -501,17 +465,18 @@ export class AppComponent implements OnInit {
     });
   }
   reset(): void {
-    //this.refreshData();
+    this.refreshData();
+
     this.bookEvent = false;
     this.cancellation = false;
     this.helpInformation = false;
     this.helpPressed = false;
     this.helpRequested = false;
-    this.newEventEndTimeId = null;
-    this.newEventStartTimeId = null;
     this.restartRequested = false;
     this.showAgenda = false;
     this.showWaitSpinner = false;
+    this.newEventStart = null;
+    this.newEventEnd = null;
 
     this.validTimeIncrements = [];
   }
@@ -561,30 +526,29 @@ export class AppComponent implements OnInit {
     let element = document.getElementById(selector);
     return element;
   }
+
   startScreenResetTimeout(ttl): void { //ttl in s
     let t = ttl * 1000; //convert s to ms
     this.currentTimeoutTTL = t;
     this.stopScreenResetTimeout();
-    /*
-    this.currentTimeout = setTimeout(function(){
-      that.reset();
-      that.closeCurrentKeyboard();
-    },t);
-   */
   }
+
   stopScreenResetTimeout(): void {
     if (this.currentTimeout != null) {
       clearTimeout(this.currentTimeout);
     }
   }
+
   submitEventForm(): void {
-    this.showWaitSpinner=true;
-    let s = this.validTimeIncrements[this.newEventStartTimeId].value;
-    let e = this.validTimeIncrements[this.newEventEndTimeId].value;
+    this.showWaitSpinner = true;
+
+    let s = this.newEventStart.value;
+    let e = this.newEventEnd.value;
 
     console.log("startTime", s, "sendTime", e)
     this.submitEvent("Ad-hoc Meeting", s, e);
   }
+
   submitEvent(tmpSubject: string, startTime: Date, endTime: Date): void {
     let req = new Event();
     let today = new Date();
@@ -626,6 +590,7 @@ export class AppComponent implements OnInit {
       this.modalTransitionTimerID = this.transitionTimer.subscribe('modalTransition', () => this.modalTimerCallback());
     }
   }
+
   utcTime(): void {
     setInterval(() => {
       this.date = new Date();
@@ -635,6 +600,7 @@ export class AppComponent implements OnInit {
       this.evalTime();
     }, 1000);
   }
+
   wait(): void {
     this.showWaitSpinner = true;
   }
