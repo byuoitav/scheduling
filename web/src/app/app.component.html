@@ -26,7 +26,10 @@
     </div>
     <div class="buttonBarBackground"></div>
     <div class="buttonWrapper">
-        <div (click)="helpClick()" class="helpButton font-size-10 font-sans">?</div>
+        <div 
+            *ngIf="env?.showhelp"
+            (click)="helpClick()" 
+            class="helpButton font-size-10 font-sans">?</div>
         <div *ngIf="env?.allowbooknow" class="bookNowButton" (click)="bookNow()">
             <div class="plusIcon buttonIcon"></div>
             <div class="button-label">BOOK NOW</div>
@@ -36,10 +39,10 @@
             <div class="button-label">VIEW SCHEDULE</div>
         </div>
     </div>
+
     <!--<div class="cancelNowButton" (click)="cancelEvent(event)" *ngIf="currentEvent">
     <div class="button-label">CANCEL</div>
   </div> -->
-
 </div>
 
 <div class="bookNow" *ngIf="bookEvent">

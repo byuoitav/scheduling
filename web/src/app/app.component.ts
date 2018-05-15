@@ -19,6 +19,7 @@ export class TimeIncrement {
 
 export class ENV {
     allowbooknow: boolean;
+    showhelp: boolean;
     hostname: string;
     timezone: string;
 
@@ -80,7 +81,6 @@ export class AppComponent implements OnInit {
   refHours: string[] = [];
   restartRequested: boolean;
   showAgenda: boolean;
-//  showHelpButton = environment.showHelpButton;
   showWaitSpinner: boolean;
   selectedEvent: Event;
   selectedStartValue: number;
@@ -106,24 +106,13 @@ export class AppComponent implements OnInit {
     let base = location.origin.split(':');
     this.url = base[0] + ':' + base[1];
 
-    this.getEnv();
-    /*
-    this.http.get<ENV>(this.url + ":5000/env").subscribe(data => {
-        this.env = data;
-        let split = this.env.hostname.split('-')
-
-        this.env.building = split[0];
-        this.env.room = split[1];
-
-        console.log("env", this.env)
-    });
-   */
+    this.getConfig();
   }
 
-  getEnv() {
+  getConfig() {
     console.log("getting env...")
 
-    this.http.get<ENV>(this.url + ":5000/env").subscribe(data => {
+    this.http.get<ENV>(this.url + ":5000/config").subscribe(data => {
       this.env = data;
       let split = this.env.hostname.split('-')
 
@@ -133,24 +122,11 @@ export class AppComponent implements OnInit {
       console.log("env", this.env)
     }, err => {
         console.log("failed to get env; trying again in 5 seconds")
-        setTimeout(() => this.getEnv(), 5000)
+        setTimeout(() => this.getConfig(), 5000)
     });
   }
 
   ngOnInit(): void {
-      /*
-    window.addEventListener('load', function(){
-      document.addEventListener('touchstart', function(e){
-        if (timeoutID != null && timeoutID > 0){
-          window.clearTimeout(timeoutID);
-          timeoutID = window.setTimeout(timeoutTTL);
-        }
-          e.preventDefault()
-      }, false)
-
-    }, false)
-   */
-
     this.noEvents = true;
     this.defaultLocale = `${this.LOCALE}`.slice(1);
 
@@ -180,25 +156,10 @@ export class AppComponent implements OnInit {
     this.selectedStartValue = 0;
     this.unoccupied = !(this.occupied);
 
-    /*for (var i = this.calendarWorkdayStartHour; i <= this.calendarWorkdayEndHour; i++) {
-
-      if (i > 12) {
-        var iNum = +i;
-        var nNum = iNum - 12;
-
-        this.refHours.push(nNum.toString());
-      }
-      else {
-        this.refHours.push(i.toString());
-      }
-      var newDate = new Date()
-      newDate.setHours(i);
-    }*/
-
     this.refreshData();
     setInterval(() => {
         this.refreshData();
-    }, 15000)
+    }, 20000)
   }
 
   calcTimeslots(): void {
