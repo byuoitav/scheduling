@@ -45,6 +45,8 @@ export class AppComponent implements OnInit {
   env: ENV;
   url: string;
 
+  lastTouch: Date;
+
   transitionTimer: SimpleTimer;
   controller = this.controller;
   bookEvent: boolean;
@@ -160,6 +162,20 @@ export class AppComponent implements OnInit {
         if (!this.bookEvent && !this.showAgenda)
             this.refreshData();
     }, 20000)
+
+    // wait for timeout, reset the screens if that happens
+    this.lastTouch = new Date();
+    setInterval(() => {
+        let curTime = new Date();
+        let diff = curTime.getTime() - this.lastTouch.getTime();
+        let minDiff = (diff/1000) /60;
+
+        console.log("time since last touch", minDiff, "seconds.")
+        if (minDiff > .5) {
+            console.log("resetting from timeout...")
+            this.reset();
+        }
+    }, 20000);
   }
 
   calcTimeslots(): void {
@@ -216,7 +232,6 @@ export class AppComponent implements OnInit {
 
     // turn times readable format
     for (let i = 0; i < times.length; i++) {
-
         // figure out if this time is free or not
         let timePlusFive = new Date(times[i].getTime() + 5*60000); // add 5 minutes
 
@@ -302,13 +317,14 @@ export class AppComponent implements OnInit {
 
   currentMeeting() {
     let now = new Date();
+
     for (let i = 0; i < this.events.length; i++) {
       if ((new Date(this.events[i].start) <= now) && (new Date(this.events[i].end) >= now)) {
         this.currentEvent = this.events[i];
-        //console.log(this.currentEvent);
         return;
       }
     }
+
     this.currentEvent = null;
   }
 
@@ -438,7 +454,7 @@ export class AppComponent implements OnInit {
     console.log("refreshing event data from", url)
     
     this.http.get<Event[]>(url).subscribe(data => {
-        console.log("events", data);
+        console.log("events response", data);
 
         for (let event of data) {
             let e = new Event();
@@ -459,13 +475,16 @@ export class AppComponent implements OnInit {
             return 0;
         });
 
+       console.log("created events", this.events);
        this.currentMeeting();
     }, err => {
         console.log("error getting events", err)
     });
   }
+
   reset(): void {
-    this.refreshData();
+    console.log("resetting data");
+  //  this.refreshData();
 
     this.bookEvent = false;
     this.cancellation = false;
@@ -480,6 +499,11 @@ export class AppComponent implements OnInit {
 
     this.validTimeIncrements = [];
   }
+
+  resetTimeout() {
+      this.lastTouch = new Date();
+  }
+
   resetModal(): void {
     this.helpPressed = false;
     this.helpRequested = false;

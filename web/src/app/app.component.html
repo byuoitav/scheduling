@@ -2,9 +2,9 @@
 <link href="https://fonts.googleapis.com/css?family=Roboto+Slab:100,200,300,400,500,600,700,800,900" rel="stylesheet">
 <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 
-<div class="window">
-    <div class="unoccupiedBanner" *ngIf="unoccupied" (click)="reset()"></div>
-    <div class="occupiedBanner" *ngIf="occupied" (click)="reset()"></div>
+<div class="window" (click)="resetTimeout()">
+    <div class="unoccupiedBanner" *ngIf="unoccupied"></div>
+    <div class="occupiedBanner" *ngIf="occupied"></div>
     <div class="roomTitle">
         {{env?.building}} {{env?.room}}
     </div>
@@ -45,7 +45,7 @@
   </div> -->
 </div>
 
-<div class="bookNow" *ngIf="bookEvent">
+<div class="bookNow" *ngIf="bookEvent" (click)="resetTimeout()">
     <div class="booking-banner-background unoccupied" *ngIf="unoccupied"></div>
     <div class="booking-banner-background occupied" *ngIf="occupied"></div>
     <div class="booking-banner">
@@ -127,7 +127,7 @@
 </div>
 
 
-<div class="scheduleEvent" *ngIf="showAgenda">
+<div class="scheduleEvent" *ngIf="showAgenda" (click)="resetTimeout()">
     <div class="agenda-banner unoccupied" *ngIf="unoccupied">
         <div class="schedule-back-x" (click)="reset()"></div>
         <div class="subpage-title-booking">
