@@ -43,7 +43,7 @@ NPM_INSTALL=$(NPM) install
 NG_BUILD=ng build --prod --aot --build-optimizer 
 NG1=web
 
-all: build docker
+all: build docker clean
 
 build: $(NG1)
 	# ng1
