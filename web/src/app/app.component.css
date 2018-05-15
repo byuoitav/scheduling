@@ -1075,6 +1075,7 @@ li {
   position: fixed;
   top: 250px;
   left: 50px;
+  max-width: 90vw;
 }
 
 .unoccupiedBanner {

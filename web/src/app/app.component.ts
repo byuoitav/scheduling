@@ -447,26 +447,26 @@ export class AppComponent implements OnInit {
 
   refreshData(): void {
     this.populateRefHours();
-    this.events = [];
-    this.noEvents = true;
 
     let url = this.url + ":5000/v1.0/exchange/calendar/events";
     console.log("refreshing event data from", url)
     
     this.http.get<Event[]>(url).subscribe(data => {
         console.log("events response", data);
+        let newEvents: Event[] = []
 
+        // create all the events
         for (let event of data) {
             let e = new Event();
             e.subject = event.subject;
             e.start = new Date(event.start);
             e.end = new Date(event.end);
 
-            this.events.push(e);
-            this.noEvents = false;
+            newEvents.push(e);
         }
 
-        this.events.sort((a,b) => {
+        // sort events
+        newEvents.sort((a,b) => {
             if (a.start < b.start) {
                 return -1;
             } else if (a.start > b.start) {
@@ -475,10 +475,14 @@ export class AppComponent implements OnInit {
             return 0;
         });
 
-       console.log("created events", this.events);
-       this.currentMeeting();
+        // replace events
+        this.events = newEvents;
+        this.noEvents = !(this.events.length > 0);
+
+        console.log("updated events", this.events);
+        this.currentMeeting();
     }, err => {
-        console.log("error getting events", err)
+        console.log("error getting events", err);
     });
   }
 
