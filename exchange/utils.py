@@ -144,9 +144,6 @@ def CreateCalendarEvent(subject,start,end):
     resource = split[0] + "_" + split[1]
     domain = os.getenv("O365_DOMAIN")
     addr = str.format("{0}@{1}",resource,domain)
-    #print("resource: {}".format(resource))
-    #print("domain: {}".format(domain))
-    #print("addr: {}".format(addr))
 
     account = Account(primary_smtp_address=addr, credentials=credentials, autodiscover=True, access_type=DELEGATE)
 

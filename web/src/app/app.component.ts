@@ -484,7 +484,6 @@ export class AppComponent implements OnInit {
 
   reset(): void {
     console.log("resetting data");
-  //  this.refreshData();
 
     this.bookEvent = false;
     this.cancellation = false;

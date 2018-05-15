@@ -194,7 +194,7 @@ class EventList(Resource):
     @calns_v1_0.response(503, 'Service Unavailable')
     def get(self):
         '''List all events'''
-        return DAO.refreshFromDb()
+        return DAO.refresh()
 
     @calns_v1_0.doc('create_event')
     @calns_v1_0.marshal_list_with(event)
