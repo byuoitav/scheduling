@@ -72,7 +72,7 @@ export class AppComponent implements OnInit {
   modalTransitionTimerID = "modalTransitionTimer";
   modalTimeout = 2;
   newEvent: Event;
-  newEventTitle = "Ad-hoc Meeting";
+  newEventTitle = "Book Now Meeting";
   newEventEnd: TimeIncrement;
   newEventStart: TimeIncrement;
   noEvents: boolean;
@@ -573,7 +573,7 @@ export class AppComponent implements OnInit {
     let e = this.newEventEnd.value;
 
     console.log("startTime", s, "sendTime", e)
-    this.submitEvent("Ad-hoc Meeting", s, e);
+    this.submitEvent(this.newEventTitle, s, e);
   }
 
   submitEvent(tmpSubject: string, startTime: Date, endTime: Date): void {
