@@ -91,7 +91,6 @@ export class AppComponent implements OnInit {
   schedulingWindow = 5; // minutes after a time window start time when the resource still be scheduled
   unoccupied: boolean;
   validTimeIncrements: TimeIncrement[] = [];
-  percentOfDayExpended: number;
 
   darkTheme: boolean;
 
@@ -432,19 +431,6 @@ export class AppComponent implements OnInit {
       }
   }
 
-  percent(): void {
-    setInterval(function() {
-      let secondsInADay = 24 * 60 * 60;
-      let now = new Date();
-      let hours = now.getHours() * 60 * 60;
-      let minutes = now.getMinutes() * 60;
-      let seconds = now.getSeconds();
-      let totalSeconds = hours + minutes + seconds;
-      let percentSeconds = 100 * totalSeconds / secondsInADay;
-      this.percentOfDayExpended = percentSeconds;
-    }, 1000);
-  }
-
   refreshData(): void {
     this.populateRefHours();
 
@@ -622,7 +608,6 @@ export class AppComponent implements OnInit {
     setInterval(() => {
       this.date = new Date();
       this.timePeriod = this.timeSlots[this.currentTimePeriod()];
-      this.percent();
       this.currentMeeting();
       this.evalTime();
     }, 1000);
