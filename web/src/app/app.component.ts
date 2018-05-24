@@ -91,7 +91,7 @@ export class AppComponent implements OnInit {
   schedulingWindow = 5; // minutes after a time window start time when the resource still be scheduled
   unoccupied: boolean;
   validTimeIncrements: TimeIncrement[] = [];
-  percentofDayExpended: number;
+  percentOfDayExpended: number;
 
   darkTheme: boolean;
 
