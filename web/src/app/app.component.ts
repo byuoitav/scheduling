@@ -91,7 +91,7 @@ export class AppComponent implements OnInit {
   schedulingWindow = 5; // minutes after a time window start time when the resource still be scheduled
   unoccupied: boolean;
   validTimeIncrements: TimeIncrement[] = [];
-  percentOfDayExpended: number;
+  percentofDayExpended: number;
 
   darkTheme: boolean;
 
@@ -431,9 +431,8 @@ export class AppComponent implements OnInit {
           }
       }
   }
-
+ 
   percent(): void {
-    setInterval(function() {
       let secondsInADay = 24 * 60 * 60;
       let now = new Date();
       let hours = now.getHours() * 60 * 60;
@@ -442,7 +441,6 @@ export class AppComponent implements OnInit {
       let totalSeconds = hours + minutes + seconds;
       let percentSeconds = 100 * totalSeconds / secondsInADay;
       this.percentOfDayExpended = percentSeconds;
-    }, 1000);
   }
 
   refreshData(): void {
