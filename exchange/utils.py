@@ -2,6 +2,7 @@ import os
 from datetime import date, datetime, timedelta
 from dateutil.parser import parse
 from exchangelib import DELEGATE, IMPERSONATION, Account, Credentials, ServiceAccount, EWSDateTime, EWSTimeZone, Configuration, NTLM, CalendarItem, Message, Mailbox, Attendee, Q, ExtendedProperty, FileAttachment, ItemAttachment, HTMLBody, Build, Version
+import exchangelib
 from enum import Enum
 from flask import abort
 
@@ -30,6 +31,13 @@ def GetEvents():
     resource = split[0] + "_" + split[1]
     domain = os.getenv("O365_DOMAIN")
     addr = str.format("{0}@{1}",resource,domain)
+
+    # populate autodiscover cache with correct server, because Office365 TLS cert is broken
+    # https://github.com/ecederstrand/exchangelib/issues/337
+    protocol = exchangelib.autodiscover.AutodiscoverProtocol(
+            service_endpoint='https://autodiscover-s.outlook.com/Autodiscover/Autodiscover.xml',
+            credentials=credentials, auth_type='basic')
+    exchangelib.autodiscover._autodiscover_cache[('byu.edu', credentials)] = protocol
 
     account = Account(primary_smtp_address=addr, credentials=credentials, autodiscover=True, access_type=DELEGATE)
 
