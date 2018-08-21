@@ -1,9 +1,23 @@
-import { Component, ElementRef, HostListener, Inject, LOCALE_ID, OnInit } from '@angular/core';
-import { DOCUMENT } from '@angular/platform-browser';
-import { HttpClient, HttpEvent, HttpInterceptor, HttpHandler, HttpRequest, HttpHeaders } from '@angular/common/http';
-import { SimpleTimer } from 'ng2-simple-timer';
+import {
+  Component,
+  ElementRef,
+  HostListener,
+  Inject,
+  LOCALE_ID,
+  OnInit
+} from "@angular/core";
+import { DOCUMENT } from "@angular/platform-browser";
+import {
+  HttpClient,
+  HttpEvent,
+  HttpInterceptor,
+  HttpHandler,
+  HttpRequest,
+  HttpHeaders
+} from "@angular/common/http";
+import { SimpleTimer } from "ng2-simple-timer";
 
-import { Event, Timeslot } from './model/o365.model';
+import { Event, Timeslot } from "./model/o365.model";
 
 export class Resource {
   id: string;
@@ -20,26 +34,29 @@ export class TimeIncrement {
 }
 
 export class ENV {
-    allowbooknow: boolean;
-    showhelp: boolean;
-    hostname: string;
-    timezone: string;
+  allowbooknow: boolean;
+  showhelp: boolean;
+  hostname: string;
+  timezone: string;
 
-    building: string;
-    room: string;
+  building: string;
+  room: string;
 }
 
-const NOEVENTS_MESSAGES: string[] = ["No Events Today", "My schedule is clear", "My schedule is wide open"]
+const NOEVENTS_MESSAGES: string[] = [
+  "No Events Today",
+  "My schedule is clear",
+  "My schedule is wide open"
+];
 
 declare var timeoutID: number;
 declare var timeoutTTL: number;
 
 @Component({
-  selector: 'app-root',
-  templateUrl: './app.component.html',
-  styleUrls: ['./app.component.css',]
+  selector: "app-root",
+  templateUrl: "./app.component.html",
+  styleUrls: ["./app.component.css"]
 })
-
 export class AppComponent implements OnInit {
   // new env vars
   env: ENV;
@@ -61,7 +78,8 @@ export class AppComponent implements OnInit {
   date: Date;
   dayMillis: number;
   timeOptions = {
-    hour: "2-digit", minute: "2-digit"
+    hour: "2-digit",
+    minute: "2-digit"
   };
   events: Event[] = [];
   helpRequested: boolean;
@@ -77,7 +95,7 @@ export class AppComponent implements OnInit {
   newEventStart: TimeIncrement;
   noEvents: boolean;
   noEvents_message = "No Events Today";
-  numTimeslots: number = 0;
+  numTimeslots = 0;
   occupied: boolean;
   refHours: string[] = [];
   restartRequested: boolean;
@@ -87,7 +105,7 @@ export class AppComponent implements OnInit {
   selectedStartValue: number;
   timeIncrement = 30; // minutes to increment select boxes by
   timeSlots: Timeslot[] = [];
-  title = 'Room Scheduler';
+  title = "Room Scheduler";
   schedulingWindow = 5; // minutes after a time window start time when the resource still be scheduled
   unoccupied: boolean;
   validTimeIncrements: TimeIncrement[] = [];
@@ -104,27 +122,30 @@ export class AppComponent implements OnInit {
   defaultLocale: string;
 
   constructor(private http: HttpClient) {
-    let base = location.origin.split(':');
-    this.url = base[0] + ':' + base[1];
+    const base = location.origin.split(":");
+    this.url = base[0] + ":" + base[1];
 
     this.getConfig();
   }
 
   getConfig() {
-    console.log("getting env...")
+    console.log("getting env...");
 
-    this.http.get<ENV>(this.url + ":5000/config").subscribe(data => {
-      this.env = data;
-      let split = this.env.hostname.split('-')
+    this.http.get<ENV>(this.url + ":5000/config").subscribe(
+      data => {
+        this.env = data;
+        const split = this.env.hostname.split("-");
 
-      this.env.building = split[0];
-      this.env.room = split[1];
+        this.env.building = split[0];
+        this.env.room = split[1];
 
-      console.log("env", this.env)
-    }, err => {
-        console.log("failed to get env; trying again in 5 seconds")
-        setTimeout(() => this.getConfig(), 5000)
-    });
+        console.log("env", this.env);
+      },
+      err => {
+        console.log("failed to get env; trying again in 5 seconds");
+        setTimeout(() => this.getConfig(), 5000);
+      }
+    );
   }
 
   ngOnInit(): void {
@@ -148,45 +169,51 @@ export class AppComponent implements OnInit {
     this.newEvent = null;
     if (this.currentEvent != null) {
       this.occupied = true;
-    }
-    else {
+    } else {
       this.occupied = false;
     }
     this.showAgenda = false;
     this.selectedEvent = null;
     this.selectedStartValue = 0;
-    this.unoccupied = !(this.occupied);
+    this.unoccupied = !this.occupied;
 
     this.refreshData();
     setInterval(() => {
-        if (!this.bookEvent && !this.showAgenda)
-            this.refreshData();
-    }, 20000)
+      if (!this.bookEvent && !this.showAgenda) {
+        this.refreshData();
+      }
+    }, 20000);
 
     // wait for timeout, reset the screens if that happens
     this.lastTouch = new Date();
     setInterval(() => {
-        let curTime = new Date();
-        let diff = curTime.getTime() - this.lastTouch.getTime();
-        let minDiff = (diff/1000) /60;
+      const curTime = new Date();
+      const diff = curTime.getTime() - this.lastTouch.getTime();
+      const minDiff = diff / 1000 / 60;
 
-        console.log("time since last touch", minDiff, "seconds.")
-        if (minDiff > .5) {
-            console.log("resetting from timeout...")
-            this.reset();
-        }
+      console.log("time since last touch", minDiff, "seconds.");
+      if (minDiff > 0.5) {
+        console.log("resetting from timeout...");
+        this.reset();
+      }
     }, 20000);
   }
 
   calcTimeslots(): void {
-    this.numTimeslots = ( this.calendarWorkdayEndHour - this.calendarWorkdayStartHour ) * (60 / this.timeIncrement);
+    this.numTimeslots =
+      (this.calendarWorkdayEndHour - this.calendarWorkdayStartHour) *
+      (60 / this.timeIncrement);
     this.populateRefHours();
     this.populateTimeslots();
   }
 
   populateRefHours(): void {
     this.refHours = [];
-    for (let i=this.calendarWorkdayStartHour; i < this.calendarWorkdayEndHour; i++ ){
+    for (
+      let i = this.calendarWorkdayStartHour;
+      i < this.calendarWorkdayEndHour;
+      i++
+    ) {
       this.refHours.push(i.toString());
     }
   }
@@ -196,14 +223,15 @@ export class AppComponent implements OnInit {
     this.validTimeIncrements = [];
 
     // create first time
-    let first = new Date();
-    if (first.getMinutes() >= 30)
-        first.setMinutes(30);
-    else
-        first.setMinutes(0);
+    const first = new Date();
+    if (first.getMinutes() >= 30) {
+      first.setMinutes(30);
+    } else {
+      first.setMinutes(0);
+    }
 
     // create end time
-    let last = new Date();
+    const last = new Date();
     last.setHours(23);
     last.setMinutes(30);
 
@@ -214,65 +242,65 @@ export class AppComponent implements OnInit {
     last.setMilliseconds(0);
 
     // create intervals
-    let times: Date[] = []
-    let curr = first;
+    const times: Date[] = [];
+    const curr = first;
 
-    while (curr.getTime() != last.getTime()) {
-        let time = new Date(curr.getTime());
-        times.push(time);
+    while (curr.getTime() !== last.getTime()) {
+      const time = new Date(curr.getTime());
+      times.push(time);
 
-        if (curr.getMinutes() >= 30) {
-            curr.setHours(curr.getHours() + 1);
-            curr.setMinutes(0);
-        } else
-            curr.setMinutes(30);
+      if (curr.getMinutes() >= 30) {
+        curr.setHours(curr.getHours() + 1);
+        curr.setMinutes(0);
+      } else {
+        curr.setMinutes(30);
+      }
     }
 
     times.push(last);
 
     // turn times readable format
     for (let i = 0; i < times.length; i++) {
-        // figure out if this time is free or not
-        let timePlusFive = new Date(times[i].getTime() + 5*60000); // add 5 minutes
+      // figure out if this time is free or not
+      const timePlusFive = new Date(times[i].getTime() + 5 * 60000); // add 5 minutes
 
-        let validStart = true;
-        let validEnd = true;
+      let validStart = true;
+      let validEnd = true;
 
-        for (let event of this.events) {
-            if (i+1 == times.length) {
-                validStart = false;
-                break;
-            }
-
-            // decide if it's a valid start time
-            if (event.start < timePlusFive && event.end > timePlusFive) {
-                validStart = false;
-                break;
-            }
+      for (const event of this.events) {
+        if (i + 1 === times.length) {
+          validStart = false;
+          break;
         }
 
-        // decide if it's a valid end time increment
-        if (i == 0 || !this.validTimeIncrements[i-1].validStart)
-            validEnd = false;
+        // decide if it's a valid start time
+        if (event.start < timePlusFive && event.end > timePlusFive) {
+          validStart = false;
+          break;
+        }
+      }
 
-        this.validTimeIncrements.push({
-            id: i,
-            value: times[i],
-            validStart: validStart,
-            validEnd: validEnd,
-        });
+      // decide if it's a valid end time increment
+      if (i === 0 || !this.validTimeIncrements[i - 1].validStart) {
+        validEnd = false;
+      }
+
+      this.validTimeIncrements.push({
+        id: i,
+        value: times[i],
+        validStart: validStart,
+        validEnd: validEnd
+      });
     }
   }
 
   availabilityClass(e: Event): string {
-    if (e.subject.toString() == 'Available') {
+    if (e.subject.toString() === "Available") {
       return "agenda-view-row-available";
-    }
-    else {
+    } else {
       return "agenda-view-row-unavailable";
     }
   }
-
 
   bookNow(): void {
     this.reset();
@@ -300,26 +328,27 @@ export class AppComponent implements OnInit {
           this.events[i - 1].end = new Date(this.events[i].end.getDate());
           this.events.pop();
           i = this.events.length - 1;
-        }
-        else {
+        } else {
           i--;
         }
-        if (i == 0) {
+        if (i === 0) {
           consolidate = false;
           break;
         }
-      }
-      else {
+      } else {
         break;
       }
     }
   }
 
   currentMeeting() {
-    let now = new Date();
+    const now = new Date();
 
     for (let i = 0; i < this.events.length; i++) {
-      if ((new Date(this.events[i].start) <= now) && (new Date(this.events[i].end) >= now)) {
+      if (
+        new Date(this.events[i].start) <= now &&
+        new Date(this.events[i].end) >= now
+      ) {
         this.currentEvent = this.events[i];
         return;
       }
@@ -328,19 +357,20 @@ export class AppComponent implements OnInit {
     this.currentEvent = null;
   }
 
-  currentTimePeriod(): number { // Return time period (0<x<96) for current time
-    let now = new Date();
-    let msIn15Min: number = 900000;
-    let secondsInADay: number = 24 * 60 * 60;
-    let hours: number = now.getHours() * 60 * 60;
-    let minutes: number = now.getMinutes() * 60;
-    let seconds: number = now.getSeconds();
-    let ms: number = (hours + minutes + seconds) * 1000;
-    let t1: number = now.getTime();
+  currentTimePeriod(): number {
+    // Return time period (0<x<96) for current time
+    const now = new Date();
+    const msIn15Min = 900000;
+    const secondsInADay: number = 24 * 60 * 60;
+    const hours: number = now.getHours() * 60 * 60;
+    const minutes: number = now.getMinutes() * 60;
+    const seconds: number = now.getSeconds();
+    const ms: number = (hours + minutes + seconds) * 1000;
+    const t1: number = now.getTime();
     now.setHours(0);
     now.setMinutes(0);
     now.setSeconds(0);
-    let t2 = now.getTime();
+    const t2 = now.getTime();
     let ret = 0;
     ret = Math.floor((t1 - t2) / msIn15Min);
     return ret;
@@ -348,32 +378,33 @@ export class AppComponent implements OnInit {
 
   durationString(selectedEvent): string {
     let duration = "";
-    let Date_Start = new Date(selectedEvent.start);
-    let Date_End = new Date(selectedEvent.end);
-    let Difference = Date_End.valueOf() - Date_Start.valueOf();
-    let diffDays = Math.floor(Difference / 86400000); // days
-    let diffHrs = Math.floor((Difference % 86400000) / 3600000); // hours
-    let diffMins = Math.round(((Difference % 86400000) % 3600000) / 60000); // minutes
+    const Date_Start = new Date(selectedEvent.start);
+    const Date_End = new Date(selectedEvent.end);
+    const Difference = Date_End.valueOf() - Date_Start.valueOf();
+    const diffDays = Math.floor(Difference / 86400000); // days
+    const diffHrs = Math.floor((Difference % 86400000) / 3600000); // hours
+    const diffMins = Math.round(((Difference % 86400000) % 3600000) / 60000); // minutes
     if (diffMins > 0) {
-      duration = diffMins.toString() + " Minutes"
+      duration = diffMins.toString() + " Minutes";
     }
     if (diffHrs > 0) {
       duration = diffHrs + " Hours " + duration;
     }
-    return (duration);
+    return duration;
   }
   evalTime(): void {
     if (this.currentEvent != null) {
       this.occupied = true;
-    }
-    else {
+    } else {
       this.occupied = false;
     }
 
-    this.unoccupied = !(this.occupied);
+    this.unoccupied = !this.occupied;
   }
-  getSelectedText(elementId,index): string {
-    let elem = document.getElementById(elementId).getElementsByTagName( 'option' )[index];
+  getSelectedText(elementId, index): string {
+    const elem = document
+      .getElementById(elementId)
+      .getElementsByTagName("option")[index];
     return elem.text;
   }
   helpClick(): void {
@@ -383,13 +414,13 @@ export class AppComponent implements OnInit {
   helpInformationRequest(): void {
     this.helpPressed = false;
     this.helpInformation = true;
-    //this.resetModal();
+    // this.resetModal();
     // show information;
   }
   helpRequest(): void {
     this.helpPressed = false;
     this.helpRequested = true;
-//    var resp = this.http.post(environment.slack_webhook_url, "{\"text\":\"Help request from " + this.resource.name + "\"}").subscribe();
+    // var resp = this.http.post(environment.slack_webhook_url, "{\"text\":\"Help request from " + this.resource.name + "\"}").subscribe();
     this.startScreenResetTimeout(3);
   }
   modalTimerCallback(): void {
@@ -405,72 +436,73 @@ export class AppComponent implements OnInit {
   }
 
   onStartChange(selected: TimeIncrement): void {
-      if (this.newEventEnd == null || selected.id >= this.newEventEnd.id) {
-          this.newEventEnd = this.validTimeIncrements[selected.id + 1];
-      }
+    if (this.newEventEnd == null || selected.id >= this.newEventEnd.id) {
+      this.newEventEnd = this.validTimeIncrements[selected.id + 1];
+    }
 
-      // check and make sure it doesn't span a bad option
-      for (let i = this.newEventStart.id; i < this.newEventEnd.id; i++) {
-          if (!this.validTimeIncrements[i].validEnd || !this.validTimeIncrements[i].validStart) {
-              this.newEventEnd = this.validTimeIncrements[selected.id + 1];
-              break;
-          }
+    // check and make sure it doesn't span a bad option
+    for (let i = this.newEventStart.id + 1; i <= this.newEventEnd.id; i++) {
+      if (!this.validTimeIncrements[i].validEnd) {
+        this.newEventEnd = this.validTimeIncrements[selected.id + 1];
+        break;
       }
+    }
   }
 
   onEndChange(selected: TimeIncrement): void {
-      if (this.newEventStart == null || selected.id <= this.newEventStart.id) {
-          this.newEventStart = this.validTimeIncrements[selected.id - 1];
-      }
+    if (this.newEventStart == null || selected.id <= this.newEventStart.id) {
+      this.newEventStart = this.validTimeIncrements[selected.id - 1];
+    }
 
-      // check and make sure it doesn't span a bad option
-      for (let i = this.newEventStart.id; i < this.newEventEnd.id; i++) {
-          if (!this.validTimeIncrements[i].validEnd || !this.validTimeIncrements[i].validStart) {
-              this.newEventStart = this.validTimeIncrements[selected.id - 1];
-              break;
-          }
+    // check and make sure it doesn't span a bad option
+    for (let i = this.newEventStart.id; i < this.newEventEnd.id; i++) {
+      if (!this.validTimeIncrements[i].validStart) {
+        this.newEventStart = this.validTimeIncrements[selected.id - 1];
+        break;
       }
+    }
   }
- 
+
   percent(): void {
-      let secondsInADay = 24 * 60 * 60;
-      let now = new Date();
-      let hours = now.getHours() * 60 * 60;
-      let minutes = now.getMinutes() * 60;
-      let seconds = now.getSeconds();
-      let totalSeconds = hours + minutes + seconds;
-      let percentSeconds = 100 * totalSeconds / secondsInADay;
-      this.percentOfDayExpended = percentSeconds;
+    const secondsInADay = 24 * 60 * 60;
+    const now = new Date();
+    const hours = now.getHours() * 60 * 60;
+    const minutes = now.getMinutes() * 60;
+    const seconds = now.getSeconds();
+    const totalSeconds = hours + minutes + seconds;
+    const percentSeconds = (100 * totalSeconds) / secondsInADay;
+    this.percentOfDayExpended = percentSeconds;
   }
 
   refreshData(): void {
     this.populateRefHours();
 
-    let url = this.url + ":5000/v1.0/exchange/calendar/events";
-    console.log("refreshing event data from", url)
-    
-    this.http.get<Event[]>(url).subscribe(data => {
+    const url = this.url + ":5000/v1.0/exchange/calendar/events";
+    console.log("refreshing event data from", url);
+
+    this.http.get<Event[]>(url).subscribe(
+      data => {
         console.log("events response", data);
-        let newEvents: Event[] = []
+        const newEvents: Event[] = [];
 
         // create all the events
-        for (let event of data) {
-            let e = new Event();
-            e.subject = event.subject;
-            e.start = new Date(event.start);
-            e.end = new Date(event.end);
+        for (const event of data) {
+          const e = new Event();
+          e.subject = event.subject;
+          e.start = new Date(event.start);
+          e.end = new Date(event.end);
 
-            newEvents.push(e);
+          newEvents.push(e);
         }
 
         // sort events
-        newEvents.sort((a,b) => {
-            if (a.start < b.start) {
-                return -1;
-            } else if (a.start > b.start) {
-                return 1;
-            }
-            return 0;
+        newEvents.sort((a, b) => {
+          if (a.start < b.start) {
+            return -1;
+          } else if (a.start > b.start) {
+            return 1;
+          }
+          return 0;
         });
 
         // replace events
@@ -479,9 +511,11 @@ export class AppComponent implements OnInit {
 
         console.log("updated events", this.events);
         this.currentMeeting();
-    }, err => {
+      },
+      err => {
         console.log("error getting events", err);
-    });
+      }
+    );
   }
 
   reset(): void {
@@ -502,13 +536,13 @@ export class AppComponent implements OnInit {
   }
 
   resetTimeout() {
-      this.lastTouch = new Date();
+    this.lastTouch = new Date();
   }
 
   resetModal(): void {
     this.helpPressed = false;
     this.helpRequested = false;
-    //let m = document.getElementsByClassName("modalContent");
+    // let m = document.getElementsByClassName("modalContent");
     /*
     for (var mChild in m) {
       setTimeout(function() {
@@ -519,7 +553,7 @@ export class AppComponent implements OnInit {
    */
   }
   resetTransitionTimer(): void {
-    this.transitionTimer.delTimer('modalTransition');
+    this.transitionTimer.delTimer("modalTransition");
   }
   restartBrowser(): void {
     this.helpInformation = false;
@@ -534,26 +568,27 @@ export class AppComponent implements OnInit {
   scheduleEvent(): void {
     this.reset();
     this.startScreenResetTimeout(10);
-    //this.refreshData();
+    // this.refreshData();
     this.showAgenda = true;
   }
   scrollReferenceEvent(elem): void {
-    let a = document.getElementById("agenda");
-    let t = document.getElementById("current-time-bar-wrapper");
+    const a = document.getElementById("agenda");
+    const t = document.getElementById("current-time-bar-wrapper");
     a.scrollTop = elem.scrollTop;
     t.scrollTop = elem.scrollTop;
   }
   selectByClass(selector: string): HTMLCollectionOf<Element> {
-    let elements = document.getElementsByClassName(selector);
+    const elements = document.getElementsByClassName(selector);
     return elements;
   }
   selectById(selector: string): HTMLElement {
-    let element = document.getElementById(selector);
+    const element = document.getElementById(selector);
     return element;
   }
 
-  startScreenResetTimeout(ttl): void { //ttl in s
-    let t = ttl * 1000; //convert s to ms
+  startScreenResetTimeout(ttl): void {
+    // ttl in s
+    const t = ttl * 1000; // convert s to ms
     this.currentTimeoutTTL = t;
     this.stopScreenResetTimeout();
   }
@@ -567,42 +602,49 @@ export class AppComponent implements OnInit {
   submitEventForm(): void {
     this.showWaitSpinner = true;
 
-    let s = this.newEventStart.value;
-    let e = this.newEventEnd.value;
+    const s = this.newEventStart.value;
+    const e = this.newEventEnd.value;
 
-    console.log("startTime", s, "sendTime", e)
+    console.log("startTime", s, "sendTime", e);
     this.submitEvent(this.newEventTitle, s, e);
   }
 
   submitEvent(tmpSubject: string, startTime: Date, endTime: Date): void {
-    let req = new Event();
-    let today = new Date();
-    let M = today.getMonth(); //month is zero-indexed
-    let d = today.getDate();
-    let y = today.getFullYear();
-    let tzoffset = today.getTimezoneOffset();
+    const req = new Event();
+    const today = new Date();
+    const M = today.getMonth(); // month is zero-indexed
+    const d = today.getDate();
+    const y = today.getFullYear();
+    const tzoffset = today.getTimezoneOffset();
 
     req.subject = tmpSubject;
-    req.start = new Date(startTime.getTime() - tzoffset*60000);
-    req.end = new Date(endTime.getTime() - tzoffset*60000);
+    req.start = new Date(startTime.getTime() - tzoffset * 60000);
+    req.end = new Date(endTime.getTime() - tzoffset * 60000);
 
     /////////
     ///  SUBMIT
     ///////
-    let url = this.url + ":5000/v1.0/exchange/calendar/events";
+    const url = this.url + ":5000/v1.0/exchange/calendar/events";
     console.log("posting", req, "to", url);
 
-    let resp = this.http.post(url,JSON.stringify(req),{headers: new HttpHeaders().set('Content-Type', 'application/json')}).subscribe(resp => {
-        console.log("successfully posted event. response: ", resp);
-        this.refreshData();
-        location.reload();
-    }, err => {
-        console.log("error posting event: ", err)
-    });
+    const resp = this.http
+      .post(url, JSON.stringify(req), {
+        headers: new HttpHeaders().set("Content-Type", "application/json")
+      })
+      .subscribe(
+        response => {
+          console.log("successfully posted event. response: ", response);
+          this.refreshData();
+          location.reload();
+        },
+        err => {
+          console.log("error posting event: ", err);
+        }
+      );
 
     setTimeout(() => {
-        location.reload();
-    }, 10000)
+      location.reload();
+    }, 10000);
   }
 
   subscribeHelpTimer(): void {
@@ -612,7 +654,10 @@ export class AppComponent implements OnInit {
       this.modalTransitionTimerCounter = 0;
     } else {
       // Subscribe if timer Id is undefined
-      this.modalTransitionTimerID = this.transitionTimer.subscribe('modalTransition', () => this.modalTimerCallback());
+      this.modalTransitionTimerID = this.transitionTimer.subscribe(
+        "modalTransition",
+        () => this.modalTimerCallback()
+      );
     }
   }
 
