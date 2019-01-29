@@ -30,12 +30,13 @@ def GetEvents():
 
     resource = split[0] + "_" + split[1]
     domain = os.getenv("O365_DOMAIN")
-    addr = str.format("{0}@{1}",resource,domain)
+    addr = str.format("{0}@{1}", resource, domain)
 
     # populate autodiscover cache with correct server, because Office365 TLS cert is broken
     # https://github.com/ecederstrand/exchangelib/issues/337
     protocol = exchangelib.autodiscover.AutodiscoverProtocol(
-            service_endpoint='https://autodiscover-s.outlook.com/Autodiscover/Autodiscover.xml',
+            #service_endpoint='https://autodiscover-s.outlook.com/Autodiscover/Autodiscover.xml',
+            service_endpoint='https://autodiscover.byu.edu:443/Autodiscover/Autodiscover.xml',
             credentials=credentials, auth_type='basic')
     exchangelib.autodiscover._autodiscover_cache[('byu.edu', credentials)] = protocol
 
