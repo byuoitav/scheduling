@@ -1,4 +1,4 @@
-FROM python:alpine3.6
+FROM python:alpine
 MAINTAINER Daniel Randall <danny_randall@byu.edu>
 
 # Non-secret ENV variables
