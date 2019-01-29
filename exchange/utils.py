@@ -6,18 +6,20 @@ import exchangelib
 from enum import Enum
 from flask import abort
 
+account = None
+
 class DELETE_TYPE(Enum):
     delete = 1
     soft_delete = 2
     delete_notify = 3
 
-def GetEvents():
-    events = []
+def initAccount():
+    global account
+
     uname = os.getenv("EXCHANGE_PROXY_USERNAME")
     pw = os.getenv("EXCHANGE_PROXY_PASSWORD")
 
     credentials = ServiceAccount(username=uname, password=pw)
-
     hostname = os.getenv("PI_HOSTNAME")
     if len(hostname) == 0:
         print("\n\nunable to get events. error: $PI_HOSTNAME not set\n\n")
@@ -41,6 +43,10 @@ def GetEvents():
     exchangelib.autodiscover._autodiscover_cache[('byu.edu', credentials)] = protocol
 
     account = Account(primary_smtp_address=addr, credentials=credentials, autodiscover=True, access_type=DELEGATE)
+    print("Exchange account successfully set up")
+
+def GetEvents():
+    events = []
 
     ews_url = account.protocol.service_endpoint
     ews_auth_type = account.protocol.auth_type

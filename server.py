@@ -2,6 +2,7 @@
 
 import maya
 import os
+import logging
 import sqlite3
 import threading
 import time
@@ -11,7 +12,7 @@ from flask.views import MethodView
 from flask_cors import CORS
 from flask_restplus import Api, Resource, fields
 from exchange.calendarModel import CalendarField, ConversationId, EffectiveRights, Mailbox, Attendee, CalendarItem, Calendar
-from exchange.utils import GetEvents, CreateCalendarEvent, DeleteCalendarEvent
+from exchange.utils import GetEvents, CreateCalendarEvent, DeleteCalendarEvent, initAccount
 
 loop = None
 dbname = "events.db"
@@ -41,6 +42,9 @@ def cache_db():
 
 @app.before_first_request
 def startCaching():
+    #logging.basicConfig(level=logging.DEBUG)
+    initAccount()
+
     db = initdb_command()
     thread = threading.Thread(target=cache_db)
     thread.start()
