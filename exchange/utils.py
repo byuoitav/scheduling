@@ -42,7 +42,7 @@ def initAccount():
             credentials=credentials, auth_type='basic')
     exchangelib.autodiscover._autodiscover_cache[('byu.edu', credentials)] = protocol
 
-    account = Account(primary_smtp_address=addr, credentials=credentials, autodiscover=True, access_type=DELEGATE)
+    account = Account(primary_smtp_address=addr, credentials=credentials, autodiscover=True, access_type=IMPERSONATION)
     print("Exchange account successfully set up")
 
 def GetEvents():
