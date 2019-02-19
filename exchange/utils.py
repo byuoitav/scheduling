@@ -20,14 +20,14 @@ def initAccount():
     pw = os.getenv("EXCHANGE_PROXY_PASSWORD")
 
     credentials = ServiceAccount(username=uname, password=pw)
-    hostname = os.getenv("PI_HOSTNAME")
-    if len(hostname) == 0:
-        print("\n\nunable to get events. error: $PI_HOSTNAME not set\n\n")
+    hostname = os.getenv("SYSTEM_ID")
+    if hostname == None or len(hostname) == 0:
+        print("\n\nunable to get events. error: $SYSTEM_DI not set\n\n")
         return
 
     split = hostname.split("-") 
-    if len(split) != 3:
-        print("\n\nunable to get events. error: $PI_HOSTNAME is set incorrectly. value= {}\n\n".format(hostname))
+    if split == None or len(split) != 3:
+        print("\n\nunable to get events. error: $SYSTEM_ID is set incorrectly. value= {}\n\n".format(hostname))
         return
 
     resource = split[0] + "_" + split[1]
@@ -42,7 +42,7 @@ def initAccount():
             credentials=credentials, auth_type='basic')
     exchangelib.autodiscover._autodiscover_cache[('byu.edu', credentials)] = protocol
 
-    account = Account(primary_smtp_address=addr, credentials=credentials, autodiscover=True, access_type=IMPERSONATION)
+    account = Account(primary_smtp_address=addr, credentials=credentials, autodiscover=True, access_type=DELEGATE)
     print("Exchange account successfully set up")
 
 def GetEvents():
@@ -141,26 +141,6 @@ def GetEvents():
 
 def CreateCalendarEvent(subject,start,end):
     events = []
-    uname = os.getenv("EXCHANGE_PROXY_USERNAME")
-    pw = os.getenv("EXCHANGE_PROXY_PASSWORD")
-
-    credentials = ServiceAccount(username=uname, password=pw)
-
-    hostname = os.getenv("PI_HOSTNAME")
-    if len(hostname) == 0:
-        print("\n\nunable to create event. error: $PI_HOSTNAME not set\n\n")
-        return
-
-    split = hostname.split("-") 
-    if len(split) != 3:
-        print("\n\nunable to create event. error: $PI_HOSTNAME is set incorrectly. value= {}\n\n".format(hostname))
-        return
-
-    resource = split[0] + "_" + split[1]
-    domain = os.getenv("O365_DOMAIN")
-    addr = str.format("{0}@{1}",resource,domain)
-
-    account = Account(primary_smtp_address=addr, credentials=credentials, autodiscover=True, access_type=DELEGATE)
 
     ews_url = account.protocol.service_endpoint
     ews_auth_type = account.protocol.auth_type
@@ -184,27 +164,6 @@ def CreateCalendarEvent(subject,start,end):
     return(item)
 
 def DeleteCalendarEvent(eventid):
-    uname = os.getenv("EXCHANGE_PROXY_USERNAME")
-    pw = os.getenv("EXCHANGE_PROXY_PASSWORD")
-
-    credentials = ServiceAccount(username=uname, password=pw)
-
-    hostname = os.getenv("PI_HOSTNAME")
-    if len(hostname) == 0:
-        print("\n\nunable to delete event. error: $PI_HOSTNAME not set\n\n")
-        return
-
-    split = hostname.split("-") 
-    if len(split) != 3:
-        print("\n\nunable to delete event. error: $PI_HOSTNAME is set incorrectly. value= {}\n\n".format(hostname))
-        return
-
-    resource = split[0] + "_" + split[1]
-    domain = os.getenv("O365_DOMAIN")
-    addr = str.format("{0}@{1}",resource,domain)
-
-    account = Account(primary_smtp_address=addr, credentials=credentials, autodiscover=True, access_type=DELEGATE)
-
     ews_url = account.protocol.service_endpoint
     ews_auth_type = account.protocol.auth_type
     primary_smtp_address = account.primary_smtp_address

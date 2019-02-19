@@ -263,7 +263,7 @@ def returnEnvVars():
     db_pass = os.getenv("DB_PASSWORD")
 
     # build url
-    url = db_addr + "/scheduling-configs/" + os.getenv("PI_HOSTNAME")
+    url = db_addr + "/scheduling-configs/" + os.getenv("SYSTEM_ID")
 
     # make request
     resp = requests.get(url, auth=(db_uname, db_pass))
