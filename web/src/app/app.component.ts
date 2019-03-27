@@ -36,11 +36,8 @@ export class TimeIncrement {
 export class ENV {
   allowbooknow: boolean;
   showhelp: boolean;
-  hostname: string;
+  displayname: string;
   timezone: string;
-
-  building: string;
-  room: string;
 }
 
 const NOEVENTS_MESSAGES: string[] = [
@@ -134,11 +131,6 @@ export class AppComponent implements OnInit {
     this.http.get<ENV>(this.url + ":5000/config").subscribe(
       data => {
         this.env = data;
-        const split = this.env.hostname.split("-");
-
-        this.env.building = split[0];
-        this.env.room = split[1];
-
         console.log("env", this.env);
       },
       err => {
