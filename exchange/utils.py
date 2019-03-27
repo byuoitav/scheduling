@@ -5,6 +5,7 @@ from exchangelib import DELEGATE, IMPERSONATION, Account, Credentials, ServiceAc
 import exchangelib
 from enum import Enum
 from flask import abort
+from couch import getCouchDoc 
 
 account = None
 
@@ -15,34 +16,50 @@ class DELETE_TYPE(Enum):
 
 def initAccount():
     global account
+    info = None
+
+    try:
+        info = getCouchDoc()
+    except Exception as e:
+        raise Exception("unable to get couch doc: ".format(e))
 
     uname = os.getenv("EXCHANGE_PROXY_USERNAME")
     pw = os.getenv("EXCHANGE_PROXY_PASSWORD")
 
     credentials = ServiceAccount(username=uname, password=pw)
-    hostname = os.getenv("SYSTEM_ID")
-    if hostname == None or len(hostname) == 0:
-        print("\n\nunable to get events. error: $SYSTEM_DI not set\n\n")
-        return
+    try:
+        resource = info["resource"]
+        if not resource:
+            raise Exception("resource not set in config doc") 
 
-    split = hostname.split("-") 
-    if split == None or len(split) != 3:
-        print("\n\nunable to get events. error: $SYSTEM_ID is set incorrectly. value= {}\n\n".format(hostname))
-        return
+        autodiscover = info["autodiscover-url"]
+        if not autodiscover:
+            raise Exception("autodiscover-url not set in config doc")
 
-    resource = split[0] + "_" + split[1]
-    domain = os.getenv("O365_DOMAIN")
-    addr = str.format("{0}@{1}", resource, domain)
+        access = info["access-type"]
+        if not access:
+            raise Exception("access-type not set in config doc")
+    except KeyError as e:
+        raise Exception("missing key {} in config doc".format(e)) 
+    except Exception as e:
+        raise Exception(e)
+
+    # split domain and resource id
+    split = resource.rsplit("@", 1)
+    if len(split) != 2 or not split[1]:
+        raise Exception("badly formatted resource (got: {}, expected: <resource_id>@<domain>)".format(resource))
+
+    accesstype = IMPERSONATION if access == 'impersonation' else DELEGATE
+    print("accesstype: {}".format(accesstype))
 
     # populate autodiscover cache with correct server, because Office365 TLS cert is broken
     # https://github.com/ecederstrand/exchangelib/issues/337
     protocol = exchangelib.autodiscover.AutodiscoverProtocol(
-            #service_endpoint='https://autodiscover-s.outlook.com/Autodiscover/Autodiscover.xml',
-            service_endpoint='https://autodiscover.byu.edu:443/Autodiscover/Autodiscover.xml',
+            service_endpoint=autodiscover,
             credentials=credentials, auth_type='basic')
-    exchangelib.autodiscover._autodiscover_cache[('byu.edu', credentials)] = protocol
+    exchangelib.autodiscover._autodiscover_cache[(split[1], credentials)] = protocol
 
-    account = Account(primary_smtp_address=addr, credentials=credentials, autodiscover=True, access_type=DELEGATE)
+    account = Account(primary_smtp_address=resource, credentials=credentials, autodiscover=True, access_type=DELEGATE)
     print("Exchange account successfully set up")
 
 def GetEvents():

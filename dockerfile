@@ -14,6 +14,7 @@ RUN apk --no-cache --virtual .build-deps add build-base libffi-dev libxml2-dev o
 # add any required files/folders here
 COPY server.py server.py
 COPY dbo.py dbo.py
+COPY couch.py couch.py
 COPY exchange exchange
 COPY web-dist web-dist
 

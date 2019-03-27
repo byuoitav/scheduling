@@ -7,12 +7,13 @@ import sqlite3
 import threading
 import time
 import requests
-from flask import Flask, abort, request, g, send_from_directory, jsonify
+from flask import Flask, abort, request, g, send_from_directory, jsonify, make_response, Response
 from flask.views import MethodView
 from flask_cors import CORS
 from flask_restplus import Api, Resource, fields
 from exchange.calendarModel import CalendarField, ConversationId, EffectiveRights, Mailbox, Attendee, CalendarItem, Calendar
 from exchange.utils import GetEvents, CreateCalendarEvent, DeleteCalendarEvent, initAccount
+from couch import getCouchDoc 
 
 loop = None
 dbname = "events.db"
@@ -42,12 +43,14 @@ def cache_db():
 
 @app.before_first_request
 def startCaching():
-    #logging.basicConfig(level=logging.DEBUG)
-    initAccount()
-
-    db = initdb_command()
-    thread = threading.Thread(target=cache_db)
-    thread.start()
+    try:
+        initAccount()
+    except Exception as e:
+        print("ERROR unable to start caching events: {}".format(e))
+    else:
+        db = initdb_command()
+        thread = threading.Thread(target=cache_db)
+        thread.start()
 
 CORS(app)
 
@@ -99,26 +102,22 @@ event = api.model('event', {
   'end': fields.String(required=True, readOnly=False, description=""),
   'start': fields.String(required=True, readOnly=False, description=""),
   'subject': fields.String(required=True, readOnly=False, description=""),
-
   '_end_timezone': fields.String(required=False, readOnly=False, description=""),
   '_start_timezone': fields.String(required=False, readOnly=False, description=""),
   'adjacent_meeting_count': fields.Integer(required=False, readOnly=False, description=""),
   'allow_new_time_proposal': fields.Boolean(required=False, readOnly=False, description=""),
   'appointment_reply_time': fields.DateTime(required=False, readOnly=False, description=""),
   'appointment_sequence_number': fields.Integer(required=False, readOnly=False, description=""),
-  #'attachments': fields.List(),
   'body': fields.String(required=False, readOnly=False, description=""),
   'changekey': fields.String(required=False, readOnly=False, description=""),
   'conference_type': fields.Integer(required=False, readOnly=False, description=""),
   'conflicting_meeting_count': fields.Integer(required=False, readOnly=False, description=""),
-  #'conversation_id': fields.ClassName("ConversationId"),
   'culture': fields.String(required=False, readOnly=False, description=""),
   'datetime_created': fields.DateTime(required=False, readOnly=False, description=""),
   'datetime_received': fields.DateTime(required=False, readOnly=False, description=""),
   'datetime_sent': fields.DateTime(required=False, readOnly=False, description=""),
   'display_to': fields.String(required=False, readOnly=False, description=""),
   'duration': fields.String(required=False, readOnly=False, description=""),
-  #'effective_rights': fields.List(fields.ClassName("EffectiveRights")),
   'has_attachments': fields.Boolean(required=False, readOnly=False, description=""),
   'importance': fields.String(required=False, readOnly=False, description=""),
   'is_all_day': fields.Boolean(required=False, readOnly=False, description=""),
@@ -141,11 +140,9 @@ event = api.model('event', {
   'meeting_request_was_sent': fields.Boolean(required=False, readOnly=False, description=""),
   'mime_content': fields.String(required=False, readOnly=False, description=""),
   'my_response_type': fields.String(required=False, readOnly=False, description=""),
-  #'organizer': fields.ClassName("Mailbox"),
   'reminder_due_by': fields.DateTime(required=False, readOnly=False, description=""),
   'reminder_is_set': fields.Boolean(required=False, readOnly=False, description=""),
   'reminder_minutes_before_start': fields.Integer(required=False, readOnly=False, description=""),
-  #'required_attendees': fields.List(fields.ClassName("Attendee")),
   'sensitivity': fields.String(required=False, readOnly=False, description=""),
   'size': fields.Integer(required=False, readOnly=False, description=""),
   'text_body': fields.String(required=False, readOnly=False, description=""),
@@ -254,28 +251,15 @@ def serve_web_index(filename=None):
 def serve_web_files(filename):
     return send_from_directory("web-dist", filename.split('/', 1)[-1])
 
-@app.route('/config/')
-def returnEnvVars():
-    # pull config from couch
-    # get auth data for couch
-    db_addr = os.getenv("DB_ADDRESS")
-    db_uname = os.getenv("DB_USERNAME")
-    db_pass = os.getenv("DB_PASSWORD")
+@app.route('/config/', strict_slashes=False)
+def config():
+    info = None
+    try:
+        info = getCouchDoc() 
+    except Exception as e:
+        return Response('{}'.format(e), status=500, mimetype="text/plain")
 
-    # build url
-    url = db_addr + "/scheduling-configs/" + os.getenv("SYSTEM_ID")
-
-    # make request
-    resp = requests.get(url, auth=(db_uname, db_pass))
-
-    # remove extra data
-    body = resp.json()
-    body['hostname'] = body['_id']
-    del body['_id']
-    del body['_rev']
-
-    return jsonify(body)
-
+    return jsonify(info)
 
 @app.teardown_appcontext
 def close_connection(exception):
