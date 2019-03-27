@@ -1,20 +1,19 @@
-version: '3'
+version: "3"
 services:
-    scheduling:
-        image: byuoitav/scheduling:${DOCKER_HUB_TAG}
-        ports:
-            - "5000:5000"
-        environment:
-            - EXCHANGE_PROXY_USERNAME=$EXCHANGE_PROXY_USERNAME
-            - EXCHANGE_PROXY_PASSWORD=$EXCHANGE_PROXY_PASSWORD
-            - O365_DOMAIN=$O365_DOMAIN
-            - PI_HOSTNAME=$PI_HOSTNAME
-            - DB_ADDRESS=$DB_ADDRESS
-            - DB_USERNAME=$DB_USERNAME
-            - DB_PASSWORD=$DB_PASSWORD
-        network_mode: "host"
-        restart: always
-        tty: true
-        logging:
-            options:
-                max-size: "100m"
+  scheduling:
+    image: byuoitav/scheduling:${DOCKER_HUB_TAG}
+    ports:
+      - "5000:5000"
+    environment:
+      - EXCHANGE_PROXY_USERNAME=$EXCHANGE_PROXY_USERNAME
+      - EXCHANGE_PROXY_PASSWORD=$EXCHANGE_PROXY_PASSWORD
+      - SYSTEM_ID=$SYSTEM_ID
+      - DB_ADDRESS=$DB_ADDRESS
+      - DB_USERNAME=$DB_USERNAME
+      - DB_PASSWORD=$DB_PASSWORD
+    network_mode: "host"
+    restart: always
+    tty: true
+    logging:
+      options:
+        max-size: "100m"
