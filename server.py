@@ -7,6 +7,7 @@ import sqlite3
 import threading
 import time
 import requests
+import sys
 from flask import Flask, abort, request, g, send_from_directory, jsonify, make_response, Response
 from flask.views import MethodView
 from flask_cors import CORS
@@ -47,6 +48,7 @@ def startCaching():
         initAccount()
     except Exception as e:
         print("ERROR unable to start caching events: {}".format(e))
+        sys.exit(1)
     else:
         db = initdb_command()
         thread = threading.Thread(target=cache_db)
