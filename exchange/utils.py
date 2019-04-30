@@ -50,7 +50,6 @@ def initAccount():
         raise Exception("badly formatted resource (got: {}, expected: <resource_id>@<domain>)".format(resource))
 
     accesstype = IMPERSONATION if access == 'impersonation' else DELEGATE
-    print("accesstype: {}".format(accesstype))
 
     # populate autodiscover cache with correct server, because Office365 TLS cert is broken
     # https://github.com/ecederstrand/exchangelib/issues/337
@@ -59,7 +58,7 @@ def initAccount():
             credentials=credentials, auth_type='basic')
     exchangelib.autodiscover._autodiscover_cache[(split[1], credentials)] = protocol
 
-    account = Account(primary_smtp_address=resource, credentials=credentials, autodiscover=True, access_type=DELEGATE)
+    account = Account(primary_smtp_address=resource, credentials=credentials, autodiscover=True, access_type=accesstype)
     print("Exchange account successfully set up")
 
 def GetEvents():
