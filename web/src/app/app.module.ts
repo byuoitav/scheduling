@@ -1,55 +1,56 @@
-import { NgModule, ApplicationRef } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { MomentModule } from 'angular2-moment';
-import { HttpModule } from '@angular/http';
-import { HttpClientModule } from '@angular/common/http';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { InputTextModule, ProgressBarModule, GrowlModule } from 'primeng/primeng';
-import { MatInputModule, MatSelectModule } from '@angular/material';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations'
+import { NgModule } from '@angular/core';
 
+import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
-// import { AppState, InternalStateType } from './app.service';
-// import { ValueService, AuthProvider } from './auth';
-import { SimpleTimer } from 'ng2-simple-timer';
-import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 
-/*
-type StoreType = {
-  state: InternalStateType,
-  restoreInputValues: () => void,
-  disposeOldHosts: () => void
-};
-*/
+import { HttpClientModule } from '@angular/common/http';
+
+import { ScrollDispatchModule } from '@angular/cdk/scrolling';
+
+import {
+  MatToolbarModule,
+  MatCardModule,
+  MatGridListModule,
+  MatButtonModule,
+  MatIconModule,
+  MatSelectModule,
+  MatFormFieldModule
+} from '@angular/material';
+
+import { TimeComponent } from './components/time/time.component';
+import { MainPageComponent } from './components/main-page/main-page.component';
+import { BookPageComponent } from './components/book-page/book-page.component';
+import { BookWindowComponent } from './components/book-window/book-window.component';
+import { SchedulePageComponent } from './components/schedule-page/schedule-page.component';
+import { ScheduleListComponent } from './components/schedule-list/schedule-list.component';
 
 @NgModule({
   declarations: [
-    AppComponent
+    AppComponent,
+    TimeComponent,
+    MainPageComponent,
+    BookPageComponent,
+    BookWindowComponent,
+    SchedulePageComponent,
+    ScheduleListComponent
   ],
   imports: [
     BrowserModule,
     BrowserAnimationsModule,
-    FormsModule,
-    ReactiveFormsModule,
-    MomentModule,
+    AppRoutingModule,
     HttpClientModule,
-    HttpModule,
-
-    NgbModule.forRoot(),
-    InputTextModule,
-    ProgressBarModule,
-    GrowlModule,
-
-    MatInputModule,
+    ScrollDispatchModule,
+    MatToolbarModule,
+    MatCardModule,
+    MatGridListModule,
+    MatButtonModule,
+    MatIconModule,
     MatSelectModule,
+    MatFormFieldModule
   ],
-  providers: [
-      SimpleTimer,
-//      AuthProvider,
-//      ValueService
-  ],
+  providers: [],
   bootstrap: [AppComponent]
 })
-export class AppModule {
-  constructor(){}
- }
+export class AppModule { }

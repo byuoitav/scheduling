@@ -1,0 +1,26 @@
+<mat-toolbar class="availability-toolbar" [ngStyle]="{'background-color': status.unoccupied? '#74be06' : '#E94037'}">
+  <button mat-icon-button class="back-button" (click)="routeToMain()">
+    <mat-icon svgIcon="BackArrow" [inline]="true"></mat-icon>
+  </button>
+  <span class="toolbar-spacing"></span>
+  <span class="booking-title">Booking {{ status.roomName }} for {{day | date : "EEEE, MMM dd"}}</span>
+</mat-toolbar>
+
+<mat-grid-list cols="5" rowHeight="136px">
+  <mat-grid-tile colspan="3" rowspan="3">
+    <app-book-window></app-book-window>
+  </mat-grid-tile>
+  <mat-grid-tile colspan="2" rowspan="2">
+    <app-time></app-time>
+  </mat-grid-tile>
+  <mat-grid-tile colspan="2" rowspan="1">
+    <button mat-stroked-button>
+      <mat-icon svgIcon="SaveTray" style="padding-right: 5px"></mat-icon>
+      SAVE
+    </button>
+    <button mat-stroked-button (click)="routeToMain()">
+      <mat-icon svgIcon="Cancel" style="padding-right: 5px"></mat-icon>
+      CANCEL
+    </button>
+  </mat-grid-tile>
+</mat-grid-list>

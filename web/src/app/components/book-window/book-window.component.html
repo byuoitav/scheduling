@@ -1,0 +1,17 @@
+<mat-card class="book-window-card">
+  <mat-card-header class="event-label">Event Title</mat-card-header>
+  <mat-card-content class="event-title-text-container">
+    <textarea matInput placeholder="The Best Meeting" class="event-title-text" rows="5"></textarea>
+  </mat-card-content>
+  <mat-card-footer class="event-footer">
+    <mat-select class="select-start-time" placeholder="Start Time" (change)="startSelected($event)">
+      <mat-option *ngFor="let time of timeIncrements" [value]="time.value" [disabled]="time.valid === false">
+        {{time.viewValue}}
+      </mat-option>
+    </mat-select>
+    <mat-select class="select-end-time" placeholder="End Time" (change)="endSelected($event)">
+      <mat-option *ngFor="let time of timeIncrements" [value]="time.value" [disabled]="time.valid === false">
+        {{time.viewValue}}</mat-option>
+    </mat-select>
+  </mat-card-footer>
+</mat-card>
