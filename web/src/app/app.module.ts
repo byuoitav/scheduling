@@ -4,9 +4,9 @@ import { NgModule } from '@angular/core';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
+import { UserIdleModule } from 'angular-user-idle';
 
 import { HttpClientModule } from '@angular/common/http';
-
 import { ScrollDispatchModule } from '@angular/cdk/scrolling';
 
 import {
@@ -40,6 +40,7 @@ import { ScheduleListComponent } from './components/schedule-list/schedule-list.
     BrowserModule,
     BrowserAnimationsModule,
     AppRoutingModule,
+    UserIdleModule.forRoot({ idle: 60, timeout: 1, ping: 30 }),
     HttpClientModule,
     ScrollDispatchModule,
     MatToolbarModule,

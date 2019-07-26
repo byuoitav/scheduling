@@ -1,4 +1,4 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { ScheduledEvent, DataService } from 'src/app/services/data/data.service';
 
 import * as moment from 'moment/moment';
@@ -6,7 +6,8 @@ import * as moment from 'moment/moment';
 export interface SelectTime {
   value: string;
   viewValue: string;
-  valid: boolean;
+  validStart: boolean;
+  validEnd: boolean;
 }
 
 @Component({
@@ -15,31 +16,44 @@ export interface SelectTime {
   styleUrls: ['./book-window.component.scss']
 })
 export class BookWindowComponent implements OnInit {
-  startTime: string;
-  endTime: string;
+  @ViewChild('eventTitle', { static: false }) inputTitle: ElementRef;
+  newBookingEvent: ScheduledEvent;
   currentEvents: ScheduledEvent[];
   timeIncrements: SelectTime[];
 
   constructor(private dataService: DataService) { }
 
   ngOnInit() {
+    this.newBookingEvent = new ScheduledEvent();
     this.currentEvents = this.dataService.getSchedule();
     this.calculateTimeIncrements();
     this.disableInvalidTimeIncrements();
   }
 
   getEventData(): ScheduledEvent {
-
-
+    if (this.inputTitle.nativeElement.value == "") {
+      this.newBookingEvent.title = "Event Title";
+    } else {
+      this.newBookingEvent.title = this.inputTitle.nativeElement.value;
+    }
+    if (this.newBookingEvent.startTime != null && this.newBookingEvent.endTime != null && this.newBookingEvent.title != null) {
+      return this.newBookingEvent;
+    }
     return null;
   }
 
-  startSelected(event): void {
-    console.log(event.value);
+  startSelected(selectEvent): void {
+    console.log(selectEvent.value);
+    let startTime = new Date();
+    startTime.setHours(parseInt(selectEvent.value.substr(0, 2)), parseInt(selectEvent.value.substr(3, 2)), 0, 0);
+    this.newBookingEvent.startTime = startTime;
   }
 
-  endSelected(event): void {
-    console.log(event.value);
+  endSelected(selectEvent): void {
+    console.log(selectEvent.value);
+    let endTime = new Date();
+    endTime.setHours(parseInt(selectEvent.value.substr(0, 2)), parseInt(selectEvent.value.substr(3, 2)), 0, 0);
+    this.newBookingEvent.endTime = endTime;
   }
 
   calculateTimeIncrements(): void {
@@ -59,7 +73,7 @@ export class BookWindowComponent implements OnInit {
       //Add to time increments
       let value = moment(currTime).format("HH mm");
       let viewValue = moment(currTime).format('h:mm a');
-      this.timeIncrements.push({ value: value, viewValue: viewValue, valid: true });
+      this.timeIncrements.push({ value: value, viewValue: viewValue, validStart: true, validEnd: true });
       //Increase by 30 min
       if (currTime.getMinutes() >= 30) {
         currTime.setMinutes(0);
@@ -73,13 +87,15 @@ export class BookWindowComponent implements OnInit {
   disableInvalidTimeIncrements(): void {
     for (let i = 0; i < this.timeIncrements.length; i++) {
       let time = new Date();
-      time.setHours(parseInt(this.timeIncrements[i].value.substr(0, 2)));
-      time.setMinutes(parseInt(this.timeIncrements[i].value.substr(3, 2)));
+      time.setHours(parseInt(this.timeIncrements[i].value.substr(0, 2)), parseInt(this.timeIncrements[i].value.substr(3, 2)), 0, 0);
       for (let j = 0; j < this.currentEvents.length; j++) {
         if ((time.getTime() >= this.currentEvents[j].startTime.getTime()) && (time.getTime() <= this.currentEvents[j].endTime.getTime())) {
-          this.timeIncrements[i].valid = false;
-          if (!this.timeIncrements[i].viewValue.includes("[Busy]")) {
-            this.timeIncrements[i].viewValue += " [Busy]";
+          this.timeIncrements[i].validStart = false;
+          this.timeIncrements[i].validEnd = false;
+          if ((time.getTime() == this.currentEvents[j].startTime.getTime()) && i != 0 && this.timeIncrements[i - 1].validStart) {
+            this.timeIncrements[i].validEnd = true;
+          } else if (time.getTime() == this.currentEvents[j].endTime.getTime()) {
+            this.timeIncrements[i].validStart = true;
           }
         }
       }

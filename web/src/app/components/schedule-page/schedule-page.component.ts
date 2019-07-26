@@ -3,6 +3,7 @@ import { DataService, RoomStatus, ScheduledEvent } from 'src/app/services/data/d
 import { DomSanitizer } from '@angular/platform-browser';
 import { MatIconRegistry } from '@angular/material/icon';
 import { Router } from '@angular/router'
+import { UserIdleService } from 'angular-user-idle';
 
 @Component({
   selector: 'app-schedule-page',
@@ -17,11 +18,19 @@ export class SchedulePageComponent implements OnInit {
   constructor(private matIconRegistry: MatIconRegistry,
     private domSanitizer: DomSanitizer,
     private dataService: DataService,
-    private router: Router) {
+    private router: Router,
+    private usrIdle: UserIdleService) {
     this.matIconRegistry.addSvgIcon(
       "BackArrow",
-      this.domSanitizer.bypassSecurityTrustResourceUrl("../assets/baseline-arrow_back-24px.svg")
+      this.domSanitizer.bypassSecurityTrustResourceUrl("../assets/BackArrow.svg")
     );
+
+    this.usrIdle.startWatching();
+    this.usrIdle.onTimerStart().subscribe((count) => console.log(count));
+    this.usrIdle.onTimeout().subscribe(() => {
+      console.log('Page timeout. Redirecting to main...');
+      this.routeToMain();
+    });
   }
 
   ngOnInit() {
@@ -30,6 +39,7 @@ export class SchedulePageComponent implements OnInit {
   }
 
   routeToMain(): void {
+    this.usrIdle.stopWatching();
     this.router.navigate(['/']);
   }
 

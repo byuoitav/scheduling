@@ -1,4 +1,4 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { MatIconRegistry } from '@angular/material';
 import { DomSanitizer } from '@angular/platform-browser';
 import { DataService, RoomStatus, ScheduledEvent } from 'src/app/services/data/data.service';
@@ -32,6 +32,7 @@ export class MainPageComponent implements OnInit {
   ngOnInit() {
     this.status = this.dataService.getRoomStatus();
     this.currentEvent = this.dataService.getCurrentEvent();
+    this.updateStatus();
   }
 
   routeToBook(): void {
@@ -40,5 +41,12 @@ export class MainPageComponent implements OnInit {
 
   routeToSchedule(): void {
     this.router.navigate(['/schedule']);
+  }
+
+  updateStatus(): void {
+    setInterval(() => {
+      this.status = this.dataService.getRoomStatus();
+      this.currentEvent = this.dataService.getCurrentEvent();
+    }, 60000);
   }
 }
