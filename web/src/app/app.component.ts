@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { DataService } from './services/data/data.service';
 
 @Component({
   selector: 'app-root',
@@ -7,5 +8,9 @@ import { Component } from '@angular/core';
 })
 export class AppComponent {
   title = 'Room Scheduler';
-  backgroundImageURL: string = "assets/YMountain.png";
+  backgroundImageURL: string;
+
+  constructor(private dataService: DataService) {
+    this.backgroundImageURL = this.dataService.getBackground();
+  }
 }

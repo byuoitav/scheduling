@@ -26,9 +26,10 @@ export class SchedulePageComponent implements OnInit {
     );
 
     this.usrIdle.startWatching();
-    this.usrIdle.onTimerStart().subscribe((count) => console.log(count));
+    this.usrIdle.onTimerStart();//.subscribe((count) => console.log(count));
     this.usrIdle.onTimeout().subscribe(() => {
       console.log('Page timeout. Redirecting to main...');
+      this.usrIdle.stopWatching();
       this.routeToMain();
     });
   }
@@ -39,7 +40,6 @@ export class SchedulePageComponent implements OnInit {
   }
 
   routeToMain(): void {
-    this.usrIdle.stopWatching();
     this.router.navigate(['/']);
   }
 

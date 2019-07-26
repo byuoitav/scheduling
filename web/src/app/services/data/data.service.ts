@@ -3,6 +3,13 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 
 import { Event } from "../../model/o365.model";
 
+export class ENV {
+  allowBookNow: boolean;
+  showHelp: boolean;
+  displayName: string;
+  timeZone: string;
+}
+
 export class RoomStatus {
   roomName: string;
   unoccupied: boolean;
@@ -20,20 +27,21 @@ export class ScheduledEvent {
 })
 export class DataService {
   url: string;
+  config: ENV = {       //TEST
+    allowBookNow: true,
+    showHelp: false,
+    displayName: "ITB 1004",
+    timeZone: "Zone"
+  };
+  status: RoomStatus;
 
-  status: RoomStatus = {
-    roomName: "ITB 1004",
-    unoccupied: true,
-    emptySchedule: false
-  }
-
-  currentSchedule: ScheduledEvent[] = [
-    { title: 'My meeting', startTime: new Date("July 25, 2019 09:30:00"), endTime: new Date("July 25, 2019 10:30:00") },
-    { title: 'My even better meeting', startTime: new Date("July 25, 2019 10:30:00"), endTime: new Date("July 25, 2019 11:30:00") },
-    { title: 'My really really really really really really really really really really really long meeting title', startTime: new Date("July 25, 2019 11:30:00"), endTime: new Date("July 25, 2019 12:30:00") },
-    { title: 'My worst meeting', startTime: new Date("July 25, 2019 12:30:00"), endTime: new Date("July 25, 2019 13:30:00") },
-    { title: 'My slightly better meeting', startTime: new Date("July 25, 2019 13:30:00"), endTime: new Date("July 25, 2019 14:30:00") },
-    { title: 'My most worstest meeting', startTime: new Date("July 25, 2019 16:30:00"), endTime: new Date("July 25, 2019 17:30:00") }
+  currentSchedule: ScheduledEvent[] = [       //TEST
+    { title: 'My meeting', startTime: new Date("July 26, 2019 09:30:00"), endTime: new Date("July 26, 2019 10:30:00") },
+    { title: 'My even better meeting', startTime: new Date("July 26, 2019 10:30:00"), endTime: new Date("July 26, 2019 11:30:00") },
+    { title: 'My really really really really really really really really really really really long meeting title', startTime: new Date("July 26, 2019 11:30:00"), endTime: new Date("July 26, 2019 12:30:00") },
+    { title: 'My worst meeting', startTime: new Date("July 26, 2019 12:30:00"), endTime: new Date("July 26, 2019 13:30:00") },
+    { title: 'My slightly better meeting', startTime: new Date("July 26, 2019 13:30:00"), endTime: new Date("July 26, 2019 14:30:00") },
+    { title: 'My most worstest meeting', startTime: new Date("July 26, 2019 16:30:00"), endTime: new Date("July 26, 2019 17:15:00") }
   ];
 
   constructor(private http: HttpClient) {
@@ -41,7 +49,18 @@ export class DataService {
     this.url = base[0] + ":" + base[1];
     console.log(this.url);
 
+    // this.getConfig();
+    this.status = {
+      roomName: this.config.displayName,
+      unoccupied: true,
+      emptySchedule: false
+    }
+
     // this.getScheduleData();
+  }
+
+  getBackground(): string {
+    return "assets/YMountain.png";
   }
 
   getRoomStatus(): RoomStatus {
@@ -62,6 +81,21 @@ export class DataService {
     }
     this.status.unoccupied = true;
     return null;
+  }
+
+  getConfig(): void {
+    console.log("Getting config...");
+
+    this.http.get<ENV>(this.url + ":5000/config").subscribe(
+      data => {
+        this.config = data;
+        console.log("Config", this.config);
+      },
+      err => {
+        console.log("Failed to get config; trying again in 5 seconds");
+        setTimeout(() => this.getConfig(), 5000);
+      }
+    );
   }
 
   getScheduleData(): void {

@@ -4,6 +4,7 @@ import { ScheduledEvent, DataService } from 'src/app/services/data/data.service'
 import * as moment from 'moment/moment';
 
 export interface SelectTime {
+  id: number;
   value: string;
   viewValue: string;
   validStart: boolean;
@@ -47,6 +48,14 @@ export class BookWindowComponent implements OnInit {
     let startTime = new Date();
     startTime.setHours(parseInt(selectEvent.value.substr(0, 2)), parseInt(selectEvent.value.substr(3, 2)), 0, 0);
     this.newBookingEvent.startTime = startTime;
+    //If end is not a reasonable end, set it to time increment after
+
+  }
+
+  getReasonableEndTime(startId: number, endId: number): number {
+    if (endId == null) return (startId + 1);
+
+    return 0;
   }
 
   endSelected(selectEvent): void {
@@ -54,6 +63,7 @@ export class BookWindowComponent implements OnInit {
     let endTime = new Date();
     endTime.setHours(parseInt(selectEvent.value.substr(0, 2)), parseInt(selectEvent.value.substr(3, 2)), 0, 0);
     this.newBookingEvent.endTime = endTime;
+    //If start is not a reasonable start, set it to time increment before
   }
 
   calculateTimeIncrements(): void {
@@ -69,11 +79,12 @@ export class BookWindowComponent implements OnInit {
     lastTime.setHours(23);
     lastTime.setMinutes(30);
 
+    let id = 0;
     while (currTime.getTime() <= lastTime.getTime()) {
       //Add to time increments
       let value = moment(currTime).format("HH mm");
       let viewValue = moment(currTime).format('h:mm a');
-      this.timeIncrements.push({ value: value, viewValue: viewValue, validStart: true, validEnd: true });
+      this.timeIncrements.push({ id: id, value: value, viewValue: viewValue, validStart: true, validEnd: true });
       //Increase by 30 min
       if (currTime.getMinutes() >= 30) {
         currTime.setMinutes(0);

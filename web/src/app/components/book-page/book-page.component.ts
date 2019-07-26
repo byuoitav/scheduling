@@ -42,9 +42,10 @@ export class BookPageComponent implements OnInit {
     );
 
     this.usrIdle.startWatching();
-    this.usrIdle.onTimerStart().subscribe((count) => console.log(count));
+    this.usrIdle.onTimerStart();//.subscribe((count) => console.log(count));
     this.usrIdle.onTimeout().subscribe(() => {
       console.log('Page timeout. Redirecting to main...');
+      this.usrIdle.stopWatching();
       this.routeToMain();
     });
   }
@@ -54,7 +55,6 @@ export class BookPageComponent implements OnInit {
   }
 
   routeToMain(): void {
-    this.usrIdle.stopWatching();
     this.router.navigate(['/']);
   }
 
@@ -65,6 +65,7 @@ export class BookPageComponent implements OnInit {
       console.log(bookEvent.endTime.toString());
       console.log(bookEvent.title);
       //Call data service - submit event
+      // this.dataService.submitNewEvent(bookEvent);
     } else {
       console.log("Null event");
       //Display alert? --- complete the form
