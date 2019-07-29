@@ -1,15 +1,9 @@
 import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
-import { ScheduledEvent, DataService } from 'src/app/services/data/data.service';
+import { ScheduledEvent } from 'src/app/services/data/data.service';
 
-import * as moment from 'moment/moment';
+import { BookService, SelectTime } from 'src/app/services/book/book.service';
 
-export interface SelectTime {
-  id: number;
-  value: string;
-  viewValue: string;
-  validStart: boolean;
-  validEnd: boolean;
-}
+
 
 @Component({
   selector: 'app-book-window',
@@ -18,17 +12,16 @@ export interface SelectTime {
 })
 export class BookWindowComponent implements OnInit {
   @ViewChild('eventTitle', { static: false }) inputTitle: ElementRef;
+  @ViewChild('eventStart', { static: false }) inputStartTime: ElementRef;
+  @ViewChild('eventEnd', { static: false }) inputEndTime: ElementRef;
   newBookingEvent: ScheduledEvent;
-  currentEvents: ScheduledEvent[];
   timeIncrements: SelectTime[];
 
-  constructor(private dataService: DataService) { }
+  constructor(private bookService: BookService) { }
 
   ngOnInit() {
     this.newBookingEvent = new ScheduledEvent();
-    this.currentEvents = this.dataService.getSchedule();
-    this.calculateTimeIncrements();
-    this.disableInvalidTimeIncrements();
+    this.timeIncrements = this.bookService.getTimeIncrements();
   }
 
   getEventData(): ScheduledEvent {
@@ -46,71 +39,55 @@ export class BookWindowComponent implements OnInit {
   startSelected(selectEvent): void {
     console.log(selectEvent.value);
     let startTime = new Date();
-    startTime.setHours(parseInt(selectEvent.value.substr(0, 2)), parseInt(selectEvent.value.substr(3, 2)), 0, 0);
+    const timeString = this.timeIncrements[selectEvent.value.id].value;
+    startTime.setHours(parseInt(timeString.substr(0, 2)), parseInt(timeString.substr(3, 2)), 0, 0);
     this.newBookingEvent.startTime = startTime;
     //If end is not a reasonable end, set it to time increment after
-
+    console.log(this.inputEndTime.nativeElement);
+    var endId: number;
+    if (this.inputEndTime.nativeElement == undefined) {
+      endId = this.checkEndTime(selectEvent.value.id, null);
+    } else {
+      endId = this.checkEndTime(selectEvent.value.id, this.inputEndTime.nativeElement.value.id);
+    }
+    console.log(this.timeIncrements[endId]);
+    this.inputEndTime.nativeElement = this.timeIncrements[endId];
   }
 
-  getReasonableEndTime(startId: number, endId: number): number {
+  checkEndTime(startId: number, endId: number): number {
     if (endId == null) return (startId + 1);
-
-    return 0;
+    if (startId >= endId) return (startId + 1);
+    for (let i = startId + 1; i < endId; i++) {
+      if (!this.timeIncrements[i].validEnd) return (startId + 1);
+    }
+    return endId;
   }
 
   endSelected(selectEvent): void {
     console.log(selectEvent.value);
     let endTime = new Date();
-    endTime.setHours(parseInt(selectEvent.value.substr(0, 2)), parseInt(selectEvent.value.substr(3, 2)), 0, 0);
+    const timeString = this.timeIncrements[selectEvent.value.id].value;
+    endTime.setHours(parseInt(timeString.substr(0, 2)), parseInt(timeString.substr(3, 2)), 0, 0);
     this.newBookingEvent.endTime = endTime;
     //If start is not a reasonable start, set it to time increment before
-  }
-
-  calculateTimeIncrements(): void {
-    this.timeIncrements = [];
-    let currTime = new Date();
-    if (currTime.getMinutes() >= 30) {
-      currTime.setMinutes(30);
+    var startId: number;
+    if (this.inputEndTime.nativeElement == null) {
+      startId = this.checkStartTime(selectEvent.value.id, null);
     } else {
-      currTime.setMinutes(0);
+      startId = this.checkStartTime(selectEvent.value.id, this.inputStartTime.nativeElement.value.id);
     }
-
-    let lastTime = new Date();
-    lastTime.setHours(23);
-    lastTime.setMinutes(30);
-
-    let id = 0;
-    while (currTime.getTime() <= lastTime.getTime()) {
-      //Add to time increments
-      let value = moment(currTime).format("HH mm");
-      let viewValue = moment(currTime).format('h:mm a');
-      this.timeIncrements.push({ id: id, value: value, viewValue: viewValue, validStart: true, validEnd: true });
-      //Increase by 30 min
-      if (currTime.getMinutes() >= 30) {
-        currTime.setMinutes(0);
-        currTime.setHours(currTime.getHours() + 1);
-      } else {
-        currTime.setMinutes(30);
-      }
-    }
+    this.inputStartTime.nativeElement.value = this.timeIncrements[startId];
   }
 
-  disableInvalidTimeIncrements(): void {
-    for (let i = 0; i < this.timeIncrements.length; i++) {
-      let time = new Date();
-      time.setHours(parseInt(this.timeIncrements[i].value.substr(0, 2)), parseInt(this.timeIncrements[i].value.substr(3, 2)), 0, 0);
-      for (let j = 0; j < this.currentEvents.length; j++) {
-        if ((time.getTime() >= this.currentEvents[j].startTime.getTime()) && (time.getTime() <= this.currentEvents[j].endTime.getTime())) {
-          this.timeIncrements[i].validStart = false;
-          this.timeIncrements[i].validEnd = false;
-          if ((time.getTime() == this.currentEvents[j].startTime.getTime()) && i != 0 && this.timeIncrements[i - 1].validStart) {
-            this.timeIncrements[i].validEnd = true;
-          } else if (time.getTime() == this.currentEvents[j].endTime.getTime()) {
-            this.timeIncrements[i].validStart = true;
-          }
-        }
-      }
+  checkStartTime(startId: number, endId: number): number {
+    if (startId == null) return (endId - 1);
+    if (startId >= endId) return (endId - 1);
+    for (let i = startId + 1; i < endId; i++) {
+      if (!this.timeIncrements[i].validStart) return (endId - 1);
     }
+    return startId;
   }
+
+
 
 }

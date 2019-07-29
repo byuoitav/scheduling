@@ -36,12 +36,12 @@ export class DataService {
   status: RoomStatus;
 
   currentSchedule: ScheduledEvent[] = [       //TEST
-    { title: 'My meeting', startTime: new Date("July 26, 2019 09:30:00"), endTime: new Date("July 26, 2019 10:30:00") },
-    { title: 'My even better meeting', startTime: new Date("July 26, 2019 10:30:00"), endTime: new Date("July 26, 2019 11:30:00") },
-    { title: 'My really really really really really really really really really really really long meeting title', startTime: new Date("July 26, 2019 11:30:00"), endTime: new Date("July 26, 2019 12:30:00") },
-    { title: 'My worst meeting', startTime: new Date("July 26, 2019 12:30:00"), endTime: new Date("July 26, 2019 13:30:00") },
-    { title: 'My slightly better meeting', startTime: new Date("July 26, 2019 13:30:00"), endTime: new Date("July 26, 2019 14:30:00") },
-    { title: 'My most worstest meeting', startTime: new Date("July 26, 2019 16:30:00"), endTime: new Date("July 26, 2019 17:15:00") }
+    { title: 'My meeting', startTime: new Date("July 29, 2019 09:30:00"), endTime: new Date("July 29, 2019 10:30:00") },
+    { title: 'My even better meeting', startTime: new Date("July 29, 2019 10:30:00"), endTime: new Date("July 29, 2019 11:30:00") },
+    { title: 'My really really really really really really really really really really really long meeting title', startTime: new Date("July 29, 2019 11:30:00"), endTime: new Date("July 29, 2019 12:30:00") },
+    { title: 'My worst meeting', startTime: new Date("July 29, 2019 12:30:00"), endTime: new Date("July 29, 2019 13:30:00") },
+    { title: 'My slightly better meeting', startTime: new Date("July 29, 2019 13:30:00"), endTime: new Date("July 29, 2019 14:30:00") },
+    { title: 'My most worstest meeting', startTime: new Date("July 29, 2019 16:30:00"), endTime: new Date("July 29, 2019 17:15:00") }
   ];
 
   constructor(private http: HttpClient) {

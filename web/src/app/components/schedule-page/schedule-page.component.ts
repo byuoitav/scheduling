@@ -26,7 +26,7 @@ export class SchedulePageComponent implements OnInit {
     );
 
     this.usrIdle.startWatching();
-    this.usrIdle.onTimerStart();//.subscribe((count) => console.log(count));
+    this.usrIdle.onTimerStart().subscribe();
     this.usrIdle.onTimeout().subscribe(() => {
       console.log('Page timeout. Redirecting to main...');
       this.usrIdle.stopWatching();
