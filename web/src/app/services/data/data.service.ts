@@ -1,14 +1,7 @@
-import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { Injectable } from "@angular/core";
+import { HttpClient, HttpHeaders } from "@angular/common/http";
 
 import { Event } from "../../model/o365.model";
-
-export class ENV {
-  allowBookNow: boolean;
-  showHelp: boolean;
-  displayName: string;
-  timeZone: string;
-}
 
 export class RoomStatus {
   roomName: string;
@@ -23,45 +16,37 @@ export class ScheduledEvent {
 }
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: "root"
 })
 export class DataService {
   url: string;
-  config: ENV = {       //TEST
-    allowBookNow: true,
-    showHelp: false,
-    displayName: "ITB 1004",
-    timeZone: "Zone"
-  };
   status: RoomStatus;
+  config: Object;
 
   currentSchedule: ScheduledEvent[] = [];
-  // currentSchedule: ScheduledEvent[] = [       //TEST
-  //   { title: 'My meeting', startTime: new Date("July 29, 2019 09:30:00"), endTime: new Date("July 29, 2019 10:30:00") },
-  //   { title: 'My even better meeting', startTime: new Date("July 29, 2019 10:30:00"), endTime: new Date("July 29, 2019 11:30:00") },
-  //   { title: 'My really really really really really really really really really really really long meeting title', startTime: new Date("July 29, 2019 11:30:00"), endTime: new Date("July 29, 2019 12:30:00") },
-  //   { title: 'My worst meeting', startTime: new Date("July 29, 2019 12:30:00"), endTime: new Date("July 29, 2019 13:30:00") },
-  //   { title: 'My slightly better meeting', startTime: new Date("July 29, 2019 13:30:00"), endTime: new Date("July 29, 2019 14:30:00") },
-  //   { title: 'My most worstest meeting', startTime: new Date("July 29, 2019 16:30:00"), endTime: new Date("July 29, 2019 17:15:00") }
-  // ];
 
   constructor(private http: HttpClient) {
     const base = location.origin.split(":");
     this.url = base[0] + ":" + base[1];
     console.log(this.url);
 
-    // this.getConfig();
+    this.getConfig();
+
     this.status = {
-      roomName: this.config.displayName,
+      roomName: "",
       unoccupied: true,
       emptySchedule: false
-    }
+    };
 
     this.getScheduleData();
     this.getCurrentEvent();
   }
 
   getBackground(): string {
+    if (this.config && this.config.hasOwnProperty("image-url")) {
+      return this.config["image-url"];
+    }
+
     return "assets/YMountain.png";
   }
 
@@ -74,31 +59,37 @@ export class DataService {
   }
 
   getCurrentEvent(): ScheduledEvent {
-    for (let i = 0; i < this.currentSchedule.length; i++) {
-      let time = new Date();
-      if ((time.getTime() >= this.currentSchedule[i].startTime.getTime()) && (time.getTime() < this.currentSchedule[i].endTime.getTime())) {
+    const time = new Date();
+
+    for (const event of this.currentSchedule) {
+      if (
+        time.getTime() >= event.startTime.getTime() &&
+        time.getTime() < event.endTime.getTime()
+      ) {
         this.status.unoccupied = false;
-        return this.currentSchedule[i];
+        return event;
       }
     }
     this.status.unoccupied = true;
     return null;
   }
 
-  getConfig(): void {
+  getConfig = async () => {
     console.log("Getting config...");
 
-    this.http.get<ENV>(this.url + ":5000/config").subscribe(
+    await this.http.get(this.url + ":5000/config").subscribe(
       data => {
         this.config = data;
-        console.log("Config", this.config);
+        console.log("config", this.config);
       },
       err => {
-        console.log("Failed to get config; trying again in 5 seconds");
-        setTimeout(() => this.getConfig(), 5000);
+        setTimeout(() => {
+          console.error("failed to get config", err);
+          this.getConfig();
+        }, 5000);
       }
     );
-  }
+  };
 
   getScheduleData(): void {
     const url = this.url + ":5000/v1.0/exchange/calendar/events";

@@ -1,5 +1,3 @@
-<!--<app-main-page [room]="room"></app-main-page>-->
-
-<body [ngStyle]="{'background': 'url(' + backgroundImageURL + ')'}">
-    <router-outlet></router-outlet>
+<body [style.background]="background">
+  <router-outlet></router-outlet>
 </body>

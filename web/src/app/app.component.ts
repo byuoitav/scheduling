@@ -1,16 +1,19 @@
-import { Component } from '@angular/core';
-import { DataService } from './services/data/data.service';
+import { Component } from "@angular/core";
+import { DomSanitizer } from "@angular/platform-browser";
+import { DataService } from "./services/data/data.service";
 
 @Component({
-  selector: 'app-root',
-  templateUrl: './app.component.html',
-  styleUrls: ['./app.component.scss']
+  selector: "app-root",
+  templateUrl: "./app.component.html",
+  styleUrls: ["./app.component.scss"]
 })
 export class AppComponent {
-  title = 'Room Scheduler';
-  backgroundImageURL: string;
+  constructor(private data: DataService, private sanitizer: DomSanitizer) {}
 
-  constructor(private dataService: DataService) {
-    this.backgroundImageURL = this.dataService.getBackground();
+  get background(): string {
+    const url = this.data.getBackground();
+    const background = "url(" + url + ")";
+
+    return this.sanitizer.bypassSecurityTrustStyle(background);
   }
 }
