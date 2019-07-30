@@ -8,9 +8,9 @@ import { DataService } from "./services/data/data.service";
   styleUrls: ["./app.component.scss"]
 })
 export class AppComponent {
-  constructor(private data: DataService, private sanitizer: DomSanitizer) {}
+  constructor(private data: DataService, private sanitizer: DomSanitizer) { }
 
-  get background(): string {
+  get background() {
     const url = this.data.getBackground();
     const background = "url(" + url + ")";
 

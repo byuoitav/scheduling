@@ -12,8 +12,8 @@
     <mat-card class="book-window-card">
       <mat-card-header class="event-label">Event Title</mat-card-header>
       <mat-card-content class="event-title-text-container">
-        <textarea matInput #eventTitle placeholder="The Best Meeting" class="event-title-text" rows="5"
-          [value]="eventTitleValue"></textarea>
+        <textarea matInput #eventTitle placeholder="Book Now Meeting" class="event-title-text" rows="5"
+          [value]="eventTitleValue" (focus)="showKeyboard()"></textarea>
       </mat-card-content>
       <mat-card-footer class="event-footer">
         <mat-select #eventStart class="select-start-time" placeholder="Start Time"
@@ -46,5 +46,3 @@
     </button>
   </mat-grid-tile>
 </mat-grid-list>
-
-<div class="simple-keyboard"></div>

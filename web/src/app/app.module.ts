@@ -17,7 +17,8 @@ import {
   MatIconModule,
   MatSelectModule,
   MatFormFieldModule,
-  MatBottomSheetModule
+  MatBottomSheetModule,
+  MatInputModule
 } from '@angular/material';
 
 import { TimeComponent } from './components/time/time.component';
@@ -27,6 +28,7 @@ import { BookWindowComponent } from './components/book-window/book-window.compon
 import { SchedulePageComponent } from './components/schedule-page/schedule-page.component';
 import { ScheduleListComponent } from './components/schedule-list/schedule-list.component';
 import { KeyboardSheetComponent } from './components/keyboard-sheet/keyboard-sheet.component';
+import { FormsModule } from '@angular/forms';
 
 @NgModule({
   declarations: [
@@ -53,8 +55,11 @@ import { KeyboardSheetComponent } from './components/keyboard-sheet/keyboard-she
     MatIconModule,
     MatSelectModule,
     MatFormFieldModule,
-    MatBottomSheetModule
+    MatBottomSheetModule,
+    FormsModule,
+    MatInputModule
   ],
+  entryComponents: [KeyboardSheetComponent],
   providers: [],
   bootstrap: [AppComponent]
 })

@@ -6,16 +6,13 @@ import { Router } from '@angular/router';
 import { UserIdleService } from 'angular-user-idle';
 import Keyboard from 'simple-keyboard';
 import { SelectTime, BookService } from 'src/app/services/book/book.service';
-import { MatBottomSheet } from '@angular/material';
+import { MatBottomSheet, MatBottomSheetRef } from '@angular/material';
+import { KeyboardSheetComponent } from '../keyboard-sheet/keyboard-sheet.component';
 
 @Component({
   selector: 'app-book-page',
-  encapsulation: ViewEncapsulation.None,
   templateUrl: './book-page.component.html',
-  styleUrls: [
-    './book-page.component.scss',
-    '../../../../node_modules/simple-keyboard/build/css/index.css'
-  ]
+  styleUrls: ['./book-page.component.scss']
 })
 export class BookPageComponent implements OnInit {
   @ViewChild('eventTitle', { static: false }) inputTitle: ElementRef;
@@ -24,7 +21,7 @@ export class BookPageComponent implements OnInit {
 
   newBookingEvent: ScheduledEvent;
   timeIncrements: SelectTime[];
-  private keyboard: Keyboard
+
   status: RoomStatus;
   day: Date = new Date();
   eventTitleValue: string = "";
@@ -65,21 +62,9 @@ export class BookPageComponent implements OnInit {
     this.timeIncrements = this.bookService.getTimeIncrements();
   }
 
-  ngAfterViewInit() {
-    this.keyboard = new Keyboard({
-      onChange: input => this.onChange(input),
-      onKeyPress: button => this.onKeyPress(button)
-    });
-  }
-
-  onChange = (input: string) => {
-    this.eventTitleValue = input;
-  };
-
-  onKeyPress = (button: string) => { };
-
   showKeyboard(): void {
-    // this.bottomSheet.open();
+    this.inputTitle.nativeElement.blur();
+    this.bottomSheet.open(KeyboardSheetComponent).afterDismissed().subscribe((result) => { this.eventTitleValue = result as string; });
   }
 
   routeToMain(): void {
@@ -105,19 +90,20 @@ export class BookPageComponent implements OnInit {
       this.newBookingEvent.title = "Event Title";
     } else {
       this.newBookingEvent.title = this.inputTitle.nativeElement.value;
+      // console.log(this.inputTitle.nativeElement.value);
     }
-    if (this.newBookingEvent.startTime != null && this.newBookingEvent.endTime != null && this.newBookingEvent.title != null) {
+    if (this.newBookingEvent.startTime != null && this.newBookingEvent.endTime != null) {
       return this.newBookingEvent;
     }
     return null;
   }
 
   startSelected(selectEvent): void {
-    console.log(selectEvent.value);
-    // let startTime = new Date();
-    // const timeString = this.timeIncrements[selectEvent.value.id].value;
-    // startTime.setHours(parseInt(timeString.substr(0, 2)), parseInt(timeString.substr(3, 2)), 0, 0);
-    // this.newBookingEvent.startTime = startTime;
+    // console.log(selectEvent.value);
+    let startTime = new Date();
+    const timeString = this.timeIncrements[selectEvent.value.id].value;
+    startTime.setHours(parseInt(timeString.substr(0, 2)), parseInt(timeString.substr(3, 2)), 0, 0);
+    this.newBookingEvent.startTime = startTime;
     // //If end is not a reasonable end, set it to time increment after
     // console.log(this.inputEndTime.nativeElement);
     // var endId: number;
@@ -140,11 +126,11 @@ export class BookPageComponent implements OnInit {
   }
 
   endSelected(selectEvent): void {
-    console.log(selectEvent.value);
-    // let endTime = new Date();
-    // const timeString = this.timeIncrements[selectEvent.value.id].value;
-    // endTime.setHours(parseInt(timeString.substr(0, 2)), parseInt(timeString.substr(3, 2)), 0, 0);
-    // this.newBookingEvent.endTime = endTime;
+    // console.log(selectEvent.value);
+    let endTime = new Date();
+    const timeString = this.timeIncrements[selectEvent.value.id].value;
+    endTime.setHours(parseInt(timeString.substr(0, 2)), parseInt(timeString.substr(3, 2)), 0, 0);
+    this.newBookingEvent.endTime = endTime;
     // //If start is not a reasonable start, set it to time increment before
     // var startId: number;
     // if (this.inputEndTime.nativeElement == null) {

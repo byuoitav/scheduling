@@ -33,7 +33,7 @@ export class DataService {
     this.getConfig();
 
     this.status = {
-      roomName: "",
+      roomName: "ITB-1004",
       unoccupied: true,
       emptySchedule: false
     };
