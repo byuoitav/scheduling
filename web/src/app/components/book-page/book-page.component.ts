@@ -4,9 +4,8 @@ import { DomSanitizer } from '@angular/platform-browser';
 import { MatIconRegistry } from '@angular/material/icon';
 import { Router } from '@angular/router';
 import { UserIdleService } from 'angular-user-idle';
-import Keyboard from 'simple-keyboard';
 import { SelectTime, BookService } from 'src/app/services/book/book.service';
-import { MatBottomSheet, MatBottomSheetRef } from '@angular/material';
+import { MatBottomSheet } from '@angular/material';
 import { KeyboardSheetComponent } from '../keyboard-sheet/keyboard-sheet.component';
 
 @Component({
@@ -47,13 +46,13 @@ export class BookPageComponent implements OnInit {
       this.domSanitizer.bypassSecurityTrustResourceUrl("../assets/Cancel.svg")
     );
 
-    // this.usrIdle.startWatching();
-    // this.usrIdle.onTimerStart().subscribe();
-    // this.usrIdle.onTimeout().subscribe(() => {
-    //   console.log('Page timeout. Redirecting to main...');
-    //   this.usrIdle.stopWatching();
-    //   this.routeToMain();
-    // });
+    this.usrIdle.startWatching();
+    this.usrIdle.onTimerStart().subscribe();
+    this.usrIdle.onTimeout().subscribe(() => {
+      console.log('Page timeout. Redirecting to main...');
+      this.usrIdle.stopWatching();
+      this.routeToMain();
+    });
   }
 
   ngOnInit() {
@@ -79,6 +78,7 @@ export class BookPageComponent implements OnInit {
       console.log(bookEvent.title);
       //Call data service - submit event
       // this.dataService.submitNewEvent(bookEvent);
+      this.routeToMain();
     } else {
       console.log("Null event");
       //Display alert? --- complete the form
