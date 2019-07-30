@@ -47,6 +47,6 @@ export class MainPageComponent implements OnInit {
     setInterval(() => {
       this.status = this.dataService.getRoomStatus();
       this.currentEvent = this.dataService.getCurrentEvent();
-    }, 60000);
+    }, 10000);
   }
 }
