@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, ViewEncapsulation, ElementRef } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { DataService, RoomStatus, ScheduledEvent } from 'src/app/services/data/data.service';
 import { DomSanitizer } from '@angular/platform-browser';
 import { MatIconRegistry } from '@angular/material/icon';
@@ -7,6 +7,7 @@ import { UserIdleService } from 'angular-user-idle';
 import { SelectTime, BookService } from 'src/app/services/book/book.service';
 import { MatBottomSheet } from '@angular/material';
 import { KeyboardSheetComponent } from '../keyboard-sheet/keyboard-sheet.component';
+import { FormControl } from '@angular/forms';
 
 @Component({
   selector: 'app-book-page',
@@ -14,9 +15,10 @@ import { KeyboardSheetComponent } from '../keyboard-sheet/keyboard-sheet.compone
   styleUrls: ['./book-page.component.scss']
 })
 export class BookPageComponent implements OnInit {
+  startTimeControl = new FormControl('');
+  endTimeControl = new FormControl('');
+
   @ViewChild('eventTitle', { static: false }) inputTitle: ElementRef;
-  @ViewChild('eventStart', { static: false }) inputStartTime: ElementRef;
-  @ViewChild('eventEnd', { static: false }) inputEndTime: ElementRef;
 
   newBookingEvent: ScheduledEvent;
   timeIncrements: SelectTime[];
@@ -63,7 +65,11 @@ export class BookPageComponent implements OnInit {
 
   showKeyboard(): void {
     this.inputTitle.nativeElement.blur();
-    this.bottomSheet.open(KeyboardSheetComponent).afterDismissed().subscribe((result) => { this.eventTitleValue = result as string; });
+    this.bottomSheet.open(KeyboardSheetComponent).afterDismissed().subscribe((result) => {
+      if (result != undefined) {
+        this.eventTitleValue = result as string;
+      }
+    });
   }
 
   routeToMain(): void {
@@ -73,51 +79,44 @@ export class BookPageComponent implements OnInit {
   saveEventData(): void {
     let bookEvent = this.getEventData();
     if (bookEvent != null) {
-      console.log(bookEvent.startTime.toString());
-      console.log(bookEvent.endTime.toString());
-      console.log(bookEvent.title);
-      //Call data service - submit event
-      // this.dataService.submitNewEvent(bookEvent);
+      console.log("New event: ", bookEvent);
+      this.dataService.submitNewEvent(bookEvent);
       this.routeToMain();
     } else {
       console.log("Null event");
-      //Display alert? --- complete the form
     }
   }
 
   getEventData(): ScheduledEvent {
     if (this.inputTitle.nativeElement.value == "") {
-      this.newBookingEvent.title = "Event Title";
+      this.newBookingEvent.title = "Book Now Meeting";
     } else {
       this.newBookingEvent.title = this.inputTitle.nativeElement.value;
-      // console.log(this.inputTitle.nativeElement.value);
     }
-    if (this.newBookingEvent.startTime != null && this.newBookingEvent.endTime != null) {
+    if (this.getSelectedTimes()) {
       return this.newBookingEvent;
     }
     return null;
   }
 
-  startSelected(selectEvent): void {
-    // console.log(selectEvent.value);
-    let startTime = new Date();
-    const timeString = this.timeIncrements[selectEvent.value.id].value;
-    startTime.setHours(parseInt(timeString.substr(0, 2)), parseInt(timeString.substr(3, 2)), 0, 0);
-    this.newBookingEvent.startTime = startTime;
-    // //If end is not a reasonable end, set it to time increment after
-    // console.log(this.inputEndTime.nativeElement);
-    // var endId: number;
-    // if (this.inputEndTime.nativeElement == undefined) {
-    //   endId = this.checkEndTime(selectEvent.value.id, null);
-    // } else {
-    //   endId = this.checkEndTime(selectEvent.value.id, this.inputEndTime.nativeElement.value.id);
-    // }
-    // console.log(this.timeIncrements[endId]);
-    // this.inputEndTime.nativeElement = this.timeIncrements[endId];
+  getSelectedTimes(): boolean {
+    if (this.startTimeControl.value.value == undefined || this.endTimeControl.value.value == undefined) return false;
+    let timeString = this.startTimeControl.value.value;
+    this.newBookingEvent.startTime = new Date();
+    this.newBookingEvent.startTime.setHours(parseInt(timeString.substr(0, 2)), parseInt(timeString.substr(3, 2)), 0, 0);
+    timeString = this.endTimeControl.value.value;
+    this.newBookingEvent.endTime = new Date();
+    this.newBookingEvent.endTime.setHours(parseInt(timeString.substr(0, 2)), parseInt(timeString.substr(3, 2)), 0, 0);
+    return true;
+  }
+
+  startSelected(): void {
+    const endId = this.checkEndTime(this.startTimeControl.value.id, this.endTimeControl.value.id);
+    this.endTimeControl.setValue(this.timeIncrements[endId]);
   }
 
   checkEndTime(startId: number, endId: number): number {
-    if (endId == null) return (startId + 1);
+    if (endId == undefined) return (startId + 1);
     if (startId >= endId) return (startId + 1);
     for (let i = startId + 1; i < endId; i++) {
       if (!this.timeIncrements[i].validEnd) return (startId + 1);
@@ -125,20 +124,9 @@ export class BookPageComponent implements OnInit {
     return endId;
   }
 
-  endSelected(selectEvent): void {
-    // console.log(selectEvent.value);
-    let endTime = new Date();
-    const timeString = this.timeIncrements[selectEvent.value.id].value;
-    endTime.setHours(parseInt(timeString.substr(0, 2)), parseInt(timeString.substr(3, 2)), 0, 0);
-    this.newBookingEvent.endTime = endTime;
-    // //If start is not a reasonable start, set it to time increment before
-    // var startId: number;
-    // if (this.inputEndTime.nativeElement == null) {
-    //   startId = this.checkStartTime(selectEvent.value.id, null);
-    // } else {
-    //   startId = this.checkStartTime(selectEvent.value.id, this.inputStartTime.nativeElement.value.id);
-    // }
-    // this.inputStartTime.nativeElement.value = this.timeIncrements[startId];
+  endSelected(): void {
+    const startId = this.checkStartTime(this.startTimeControl.value.id, this.endTimeControl.value.id);
+    this.startTimeControl.setValue(this.timeIncrements[startId]);
   }
 
   checkStartTime(startId: number, endId: number): number {

@@ -24,11 +24,10 @@ import {
 import { TimeComponent } from './components/time/time.component';
 import { MainPageComponent } from './components/main-page/main-page.component';
 import { BookPageComponent } from './components/book-page/book-page.component';
-import { BookWindowComponent } from './components/book-window/book-window.component';
 import { SchedulePageComponent } from './components/schedule-page/schedule-page.component';
 import { ScheduleListComponent } from './components/schedule-list/schedule-list.component';
 import { KeyboardSheetComponent } from './components/keyboard-sheet/keyboard-sheet.component';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 @NgModule({
   declarations: [
@@ -36,7 +35,6 @@ import { FormsModule } from '@angular/forms';
     TimeComponent,
     MainPageComponent,
     BookPageComponent,
-    BookWindowComponent,
     SchedulePageComponent,
     ScheduleListComponent,
     KeyboardSheetComponent
@@ -56,8 +54,9 @@ import { FormsModule } from '@angular/forms';
     MatSelectModule,
     MatFormFieldModule,
     MatBottomSheetModule,
+    MatInputModule,
     FormsModule,
-    MatInputModule
+    ReactiveFormsModule
   ],
   entryComponents: [KeyboardSheetComponent],
   providers: [],

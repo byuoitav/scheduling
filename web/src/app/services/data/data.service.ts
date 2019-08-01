@@ -33,12 +33,15 @@ export class DataService {
     this.getConfig();
 
     this.status = {
-      roomName: "ITB-1004",
+      roomName: "",
       unoccupied: true,
       emptySchedule: false
     };
 
     this.getScheduleData();
+    setInterval(() => {
+      this.getScheduleData();
+    }, 30000);
     this.getCurrentEvent();
   }
 
@@ -81,6 +84,7 @@ export class DataService {
       data => {
         this.config = data;
         console.log("config", this.config);
+        this.status.roomName = this.config["displayname"];
       },
       err => {
         setTimeout(() => {
@@ -93,11 +97,11 @@ export class DataService {
 
   getScheduleData(): void {
     const url = this.url + ":5000/v1.0/exchange/calendar/events";
-    // console.log("refreshing event data from", url);
+    console.log("Getting schedule data from", url);
 
     this.http.get<Event[]>(url).subscribe(
       data => {
-        console.log("events response", data);
+        console.log("Schedule response", data);
         const newEvents: ScheduledEvent[] = [];
 
         // create all the events
@@ -124,10 +128,10 @@ export class DataService {
         this.currentSchedule = newEvents;
         this.status.emptySchedule = !(this.currentSchedule.length > 0);
 
-        // console.log("updated events", this.currentSchedule);
+        console.log("Schedule updated");
       },
       err => {
-        console.log("error getting events", err);
+        console.log("Error getting Schedule", err);
       }
     );
   }
@@ -135,20 +139,14 @@ export class DataService {
   submitNewEvent(event: ScheduledEvent): void {
     const req = new Event();
     const today = new Date();
-    const M = today.getMonth(); // month is zero-indexed
-    const d = today.getDate();
-    const y = today.getFullYear();
     const tzoffset = today.getTimezoneOffset();
 
     req.subject = event.title;
     req.start = new Date(event.startTime.getTime() - tzoffset * 60000);
     req.end = new Date(event.endTime.getTime() - tzoffset * 60000);
 
-    /////////
-    ///  SUBMIT
-    ///////
     const url = this.url + ":5000/v1.0/exchange/calendar/events";
-    console.log("posting", req, "to", url);
+    console.log("Posting", req, "to", url);
 
     const resp = this.http
       .post(url, JSON.stringify(req), {
@@ -156,17 +154,17 @@ export class DataService {
       })
       .subscribe(
         response => {
-          console.log("successfully posted event. response: ", response);
+          console.log("Successfully posted event. Response: ", response);
           this.getScheduleData();
           location.reload();
         },
         err => {
-          console.log("error posting event: ", err);
+          console.log("Error posting event: ", err);
         }
       );
 
-    setTimeout(() => {
-      location.reload();
-    }, 10000);
+    // setTimeout(() => {
+    //   location.reload();
+    // }, 10000);
   }
 }

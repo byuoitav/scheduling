@@ -32,8 +32,7 @@ export class BookService {
     }
 
     let lastTime = new Date();
-    lastTime.setHours(23);
-    lastTime.setMinutes(30);
+    lastTime.setHours(23, 30, 0, 0);
 
     let id = 0;
     while (currTime.getTime() <= lastTime.getTime()) {
@@ -45,8 +44,7 @@ export class BookService {
       this.timeIncrements.push({ id: id, value: moment(currTime).format("HH mm"), viewValue: moment(currTime).format('h:mm a'), validStart: validStart, validEnd: validEnd });
       //Increase by 30 min
       if (currTime.getMinutes() >= 30) {
-        currTime.setMinutes(0);
-        currTime.setHours(currTime.getHours() + 1);
+        currTime.setHours(currTime.getHours() + 1, 0, 0, 0);
       } else {
         currTime.setMinutes(30);
       }
@@ -73,6 +71,8 @@ export class BookService {
   }
 
   getTimeIncrements(): SelectTime[] {
+    console.log("Calculating time increments...");
+    this.currentEvents = this.dataService.getSchedule();
     this.calculateTimeIncrements();
     this.disableInvalidTimeIncrements();
     return this.timeIncrements;

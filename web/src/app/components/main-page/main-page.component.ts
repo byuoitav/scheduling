@@ -10,10 +10,8 @@ import { Router } from '@angular/router'
   styleUrls: ['./main-page.component.scss']
 })
 export class MainPageComponent implements OnInit {
-
   status: RoomStatus;
   currentEvent: ScheduledEvent;
-
 
   constructor(private matIconRegistry: MatIconRegistry,
     private domSanitizer: DomSanitizer,
@@ -47,6 +45,6 @@ export class MainPageComponent implements OnInit {
     setInterval(() => {
       this.status = this.dataService.getRoomStatus();
       this.currentEvent = this.dataService.getCurrentEvent();
-    }, 5000);
+    }, 15000);
   }
 }
