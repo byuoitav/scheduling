@@ -8,10 +8,12 @@ const routes: Routes = [
   { path: '', component: MainPageComponent },
   { path: 'book', component: BookPageComponent },
   { path: 'schedule', component: SchedulePageComponent }
+  // { path: 'web', redirectTo: '/', pathMatch: 'full' }
 ];
 
 @NgModule({
   imports: [RouterModule.forRoot(routes)],
   exports: [RouterModule]
 })
-export class AppRoutingModule { }
+export class AppRoutingModule {
+}

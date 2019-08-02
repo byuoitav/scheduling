@@ -19,11 +19,11 @@ export class MainPageComponent implements OnInit {
     private router: Router) {
     this.matIconRegistry.addSvgIcon(
       "Calendar",
-      this.domSanitizer.bypassSecurityTrustResourceUrl("../assets/CALENDAR.svg")
+      this.domSanitizer.bypassSecurityTrustResourceUrl("./assets/CALENDAR.svg")
     );
     this.matIconRegistry.addSvgIcon(
       "Plus",
-      this.domSanitizer.bypassSecurityTrustResourceUrl("../assets/Plus.svg")
+      this.domSanitizer.bypassSecurityTrustResourceUrl("./assets/Plus.svg")
     );
   }
 

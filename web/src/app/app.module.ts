@@ -29,6 +29,8 @@ import { ScheduleListComponent } from './components/schedule-list/schedule-list.
 import { KeyboardSheetComponent } from './components/keyboard-sheet/keyboard-sheet.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
+import { APP_BASE_HREF } from '@angular/common';
+
 @NgModule({
   declarations: [
     AppComponent,
@@ -59,7 +61,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
     ReactiveFormsModule
   ],
   entryComponents: [KeyboardSheetComponent],
-  providers: [],
+  providers: [{ provide: APP_BASE_HREF, useValue: '/web' }],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

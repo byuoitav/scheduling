@@ -22,7 +22,7 @@ export class SchedulePageComponent implements OnInit {
     private usrIdle: UserIdleService) {
     this.matIconRegistry.addSvgIcon(
       "BackArrow",
-      this.domSanitizer.bypassSecurityTrustResourceUrl("../assets/BackArrow.svg")
+      this.domSanitizer.bypassSecurityTrustResourceUrl("./assets/BackArrow.svg")
     );
 
     this.usrIdle.startWatching();

@@ -37,15 +37,15 @@ export class BookPageComponent implements OnInit {
 
     this.matIconRegistry.addSvgIcon(
       "BackArrow",
-      this.domSanitizer.bypassSecurityTrustResourceUrl("../assets/BackArrow.svg")
+      this.domSanitizer.bypassSecurityTrustResourceUrl("./assets/BackArrow.svg")
     );
     this.matIconRegistry.addSvgIcon(
       "SaveTray",
-      this.domSanitizer.bypassSecurityTrustResourceUrl("../assets/SaveTray.svg")
+      this.domSanitizer.bypassSecurityTrustResourceUrl("./assets/SaveTray.svg")
     );
     this.matIconRegistry.addSvgIcon(
       "Cancel",
-      this.domSanitizer.bypassSecurityTrustResourceUrl("../assets/Cancel.svg")
+      this.domSanitizer.bypassSecurityTrustResourceUrl("./assets/Cancel.svg")
     );
 
     this.usrIdle.startWatching();
