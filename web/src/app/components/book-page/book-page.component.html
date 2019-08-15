@@ -9,7 +9,7 @@
 <mat-grid-list cols="5" rowHeight="136px">
   <mat-grid-tile colspan="3" rowspan="3">
     <mat-card class="book-window-card">
-      <mat-card-header class="event-label">Event Title</mat-card-header>
+      <mat-card-content class="event-label">Event Title</mat-card-content>
       <mat-card-content class="event-title-text-container">
         <textarea matInput #eventTitle placeholder="Book Now Meeting" class="event-title-text" rows="5"
           [value]="eventTitleValue" (focus)="showKeyboard()"></textarea>
