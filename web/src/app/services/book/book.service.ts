@@ -68,6 +68,14 @@ export class BookService {
         }
       }
     }
+    for (let i = 0; i < this.timeIncrements.length; i++) {
+      if (i != 0 && !this.timeIncrements[i - 1].validStart) {
+        this.timeIncrements[i].validEnd = false;
+      }
+      if (i != this.timeIncrements.length - 1 && !this.timeIncrements[i + 1].validEnd) {
+        this.timeIncrements[i].validStart = false;
+      }
+    }
   }
 
   getTimeIncrements(): SelectTime[] {
