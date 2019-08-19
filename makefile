@@ -52,6 +52,8 @@ build: $(NG1)
 
 clean: 
 	rm -rf $(NG1)-dist
+	rm -rf files/
+	rm -f $(BRANCH).tar.gz
 
 run: $(NG1)-dist server
 
@@ -64,6 +66,25 @@ deps:
 	$(PIP_INSTALL) flask_cors 
 	$(PIP_INSTALL) flask_restplus 
 	$(PIP_INSTALL) exchangelib 
+
+deploy:
+ifeq "$(BRANCH)" "master"
+	$(eval BRANCH=development)
+endif
+	@echo Building deployment tarball
+	@mkdir files
+	@cp version.txt files/
+
+	@tar -czf $(BRANCH).tar.gz $(NAME) files
+
+	@echo Getting current doc revision
+	$(eval rev=$(shell curl -s -n -X GET -u ${DB_USERNAME}:${DB_PASSWORD} "${DB_ADDRESS}/deployment-information/$(NAME)" | cut -d, -f2 | cut -d\" -f4))
+
+	@echo Pushing zip up to couch
+	@curl -X PUT -u ${DB_USERNAME}:${DB_PASSWORD} -H "Content-Type: application/gzip" -H "If-Match: $(rev)" ${DB_ADDRESS}/deployment-information/$(NAME)/$(BRANCH).tar.gz --data-binary @$(BRANCH).tar.gz
+ifeq "$(BRANCH)" "development"
+	$(eval BRANCH=master)
+endif
 
 docker: docker-x86 docker-arm
 
