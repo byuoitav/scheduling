@@ -1,55 +1,67 @@
-import { NgModule, ApplicationRef } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { MomentModule } from 'angular2-moment';
-import { HttpModule } from '@angular/http';
-import { HttpClientModule } from '@angular/common/http';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { InputTextModule, ProgressBarModule, GrowlModule } from 'primeng/primeng';
-import { MatInputModule, MatSelectModule } from '@angular/material';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations'
+import { NgModule } from '@angular/core';
 
+import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
-// import { AppState, InternalStateType } from './app.service';
-// import { ValueService, AuthProvider } from './auth';
-import { SimpleTimer } from 'ng2-simple-timer';
-import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
+import { UserIdleModule } from 'angular-user-idle';
 
-/*
-type StoreType = {
-  state: InternalStateType,
-  restoreInputValues: () => void,
-  disposeOldHosts: () => void
-};
-*/
+import { HttpClientModule } from '@angular/common/http';
+import { ScrollDispatchModule } from '@angular/cdk/scrolling';
+
+import {
+  MatToolbarModule,
+  MatCardModule,
+  MatGridListModule,
+  MatButtonModule,
+  MatIconModule,
+  MatSelectModule,
+  MatFormFieldModule,
+  MatBottomSheetModule,
+  MatInputModule
+} from '@angular/material';
+
+import { TimeComponent } from './components/time/time.component';
+import { MainPageComponent } from './components/main-page/main-page.component';
+import { BookPageComponent } from './components/book-page/book-page.component';
+import { SchedulePageComponent } from './components/schedule-page/schedule-page.component';
+import { ScheduleListComponent } from './components/schedule-list/schedule-list.component';
+import { KeyboardSheetComponent } from './components/keyboard-sheet/keyboard-sheet.component';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+
+import { APP_BASE_HREF } from '@angular/common';
 
 @NgModule({
   declarations: [
-    AppComponent
+    AppComponent,
+    TimeComponent,
+    MainPageComponent,
+    BookPageComponent,
+    SchedulePageComponent,
+    ScheduleListComponent,
+    KeyboardSheetComponent
   ],
   imports: [
     BrowserModule,
     BrowserAnimationsModule,
-    FormsModule,
-    ReactiveFormsModule,
-    MomentModule,
+    AppRoutingModule,
+    UserIdleModule.forRoot({ idle: 60, timeout: 1, ping: 30 }),
     HttpClientModule,
-    HttpModule,
-
-    NgbModule.forRoot(),
-    InputTextModule,
-    ProgressBarModule,
-    GrowlModule,
-
-    MatInputModule,
+    ScrollDispatchModule,
+    MatToolbarModule,
+    MatCardModule,
+    MatGridListModule,
+    MatButtonModule,
+    MatIconModule,
     MatSelectModule,
+    MatFormFieldModule,
+    MatBottomSheetModule,
+    MatInputModule,
+    FormsModule,
+    ReactiveFormsModule
   ],
-  providers: [
-      SimpleTimer,
-//      AuthProvider,
-//      ValueService
-  ],
+  entryComponents: [KeyboardSheetComponent],
+  providers: [{ provide: APP_BASE_HREF, useValue: '/web' }],
   bootstrap: [AppComponent]
 })
-export class AppModule {
-  constructor(){}
- }
+export class AppModule { }

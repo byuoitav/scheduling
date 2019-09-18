@@ -1,7 +1,7 @@
 version: "3"
 services:
   scheduling:
-    image: byuoitav/scheduling:${DOCKER_HUB_TAG}
+    image: byuoitav/scheduling:stage
     ports:
       - "5000:5000"
     environment:
