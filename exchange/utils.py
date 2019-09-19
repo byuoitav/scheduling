@@ -26,6 +26,8 @@ def initAccount():
     uname = os.getenv("EXCHANGE_PROXY_USERNAME")
     pw = os.getenv("EXCHANGE_PROXY_PASSWORD")
 
+    print("creating service account with uname: {}, password: {}".format(uname, pw))
+
     credentials = ServiceAccount(username=uname, password=pw)
     try:
         resource = info["resource"]
