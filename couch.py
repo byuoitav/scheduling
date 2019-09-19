@@ -35,4 +35,5 @@ def getCouchDoc():
     del body['_id']
     del body['_rev']
 
+    print("couch body: {}".format(body))
     return body
