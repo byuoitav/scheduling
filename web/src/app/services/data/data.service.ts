@@ -77,10 +77,28 @@ export class DataService {
     return null;
   }
 
+  // getConfig = async () => {
+  //   console.log("Getting config...");
+
+  //   await this.http.get(this.url + ":5000/config").subscribe(
+  //     data => {
+  //       this.config = data;
+  //       console.log("config", this.config);
+  //       this.status.roomName = this.config["displayname"];
+  //     },
+  //     err => {
+  //       setTimeout(() => {
+  //         console.error("failed to get config", err);
+  //         this.getConfig();
+  //       }, 5000);
+  //     }
+  //   );
+  // };
+
   getConfig = async () => {
     console.log("Getting config...");
 
-    await this.http.get(this.url + ":5000/config").subscribe(
+    await this.http.get(this.url + ":8033/config").subscribe(
       data => {
         this.config = data;
         console.log("config", this.config);
@@ -135,6 +153,25 @@ export class DataService {
       }
     );
   }
+
+  // getScheduleDataTest = async () => {
+  //   const url = this.url + ":8033/events";
+  //   console.log("Getting schedule data from: ", url);
+
+  //   await this.http.get<ScheduledEvent[]>(url).subscribe(
+  //     data => {
+  //       // Turn into schedule events
+  //       this.currentSchedule = data;
+  //       console.log("Schedule updated")
+  //     },
+  //     err => {
+  //       setTimeout(() => {
+  //         console.error("failed to get schedule data", err);
+  //         this.getScheduleDataTest();
+  //       }, 5000);
+  //     }
+  //   );
+  // };
 
   submitNewEvent(event: ScheduledEvent): void {
     const req = new Event();
