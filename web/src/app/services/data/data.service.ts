@@ -241,6 +241,9 @@ export class DataService {
     body.endTime = moment(event.endTime).format("YYYY-MM-DDTHH:mm:ssZ");
 
     await this.http.put(url, body, httpHeaders).subscribe(
+      data => {
+        console.log("Event submitted")
+      },
       err => {
         setTimeout(() => {
           console.error("failed to send event", err);
