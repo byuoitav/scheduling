@@ -88,24 +88,6 @@ export class DataService {
     return null;
   }
 
-  // getConfig = async () => {
-  //   console.log("Getting config...");
-
-  //   await this.http.get(this.url + ":5000/config").subscribe(
-  //     data => {
-  //       this.config = data;
-  //       console.log("config", this.config);
-  //       this.status.roomName = this.config["displayname"];
-  //     },
-  //     err => {
-  //       setTimeout(() => {
-  //         console.error("failed to get config", err);
-  //         this.getConfig();
-  //       }, 5000);
-  //     }
-  //   );
-  // };
-
   getConfig = async () => {
     console.log("Getting config...");
 
@@ -124,47 +106,6 @@ export class DataService {
       }
     );
   };
-
-  // getScheduleData(): void {
-  //   const url = this.url + ":5000/v1.0/exchange/calendar/events";
-  //   console.log("Getting schedule data from", url);
-
-  //   this.http.get<Event[]>(url).subscribe(
-  //     data => {
-  //       console.log("Schedule response", data);
-  //       const newEvents: ScheduledEvent[] = [];
-
-  //       // create all the events
-  //       for (const event of data) {
-  //         const e = new ScheduledEvent();
-  //         e.title = event.subject;
-  //         e.startTime = new Date(event.start);
-  //         e.endTime = new Date(event.end);
-
-  //         newEvents.push(e);
-  //       }
-
-  //       // sort events
-  //       newEvents.sort((a, b) => {
-  //         if (a.startTime < b.startTime) {
-  //           return -1;
-  //         } else if (a.startTime > b.startTime) {
-  //           return 1;
-  //         }
-  //         return 0;
-  //       });
-
-  //       // replace events
-  //       this.currentSchedule = newEvents;
-  //       this.status.emptySchedule = !(this.currentSchedule.length > 0);
-
-  //       console.log("Schedule updated");
-  //     },
-  //     err => {
-  //       console.log("Error getting Schedule", err);
-  //     }
-  //   );
-  // }
 
   getScheduleData = async () => {
     const url = this.url + ":8033/calendar/" + this.status.deviceName;
@@ -193,39 +134,6 @@ export class DataService {
     );
   };
 
-  // submitNewEvent(event: ScheduledEvent): void {
-  //   const req = new Event();
-  //   const today = new Date();
-  //   const tzoffset = today.getTimezoneOffset();
-
-  //   req.subject = event.title;
-  //   req.start = new Date(event.startTime.getTime() - tzoffset * 60000);
-  //   req.end = new Date(event.endTime.getTime() - tzoffset * 60000);
-
-  //   const url = this.url + ":5000/v1.0/exchange/calendar/events";
-  //   console.log("Posting", req, "to", url);
-
-  //   const resp = this.http
-  //     .post(url, JSON.stringify(req), {
-  //       headers: new HttpHeaders().set("Content-Type", "application/json")
-  //     })
-  //     .subscribe(
-  //       response => {
-  //         console.log("Successfully posted event. Response: ", response);
-  //         this.getScheduleData();
-  //         location.reload();
-  //       },
-  //       err => {
-  //         console.log("Error posting event: ", err);
-  //       }
-  //     );
-
-  //   // setTimeout(() => {
-  //   //   location.reload();
-  //   // }, 10000);
-  // }
-
-
   submitNewEvent = async (event: ScheduledEvent) => {
     const url = this.url + ":8033/calendar/" + this.status.deviceName;
     console.log("Submitting new event to ", url);
@@ -243,6 +151,8 @@ export class DataService {
     await this.http.put(url, body, httpHeaders).subscribe(
       data => {
         console.log("Event submitted")
+        console.log(data);
+        this.getScheduleData();
       },
       err => {
         setTimeout(() => {
