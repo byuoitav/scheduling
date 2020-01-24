@@ -2,11 +2,20 @@ import { Injectable } from "@angular/core";
 import { HttpClient, HttpHeaders } from "@angular/common/http";
 
 import { Event } from "../../model/o365.model";
+import * as moment from 'moment/moment';
 
 export class RoomStatus {
   roomName: string;
+  deviceName: string;
   unoccupied: boolean;
   emptySchedule: boolean;
+  displayBookNow: boolean;
+}
+
+export class OutputEvent {
+  title: string;
+  startTime: string;
+  endTime: string;
 }
 
 export class ScheduledEvent {
@@ -34,8 +43,10 @@ export class DataService {
 
     this.status = {
       roomName: "",
+      deviceName: "",
       unoccupied: true,
-      emptySchedule: false
+      emptySchedule: false,
+      displayBookNow: true
     };
 
     this.getScheduleData();
@@ -64,13 +75,15 @@ export class DataService {
   getCurrentEvent(): ScheduledEvent {
     const time = new Date();
 
-    for (const event of this.currentSchedule) {
-      if (
-        time.getTime() >= event.startTime.getTime() &&
-        time.getTime() < event.endTime.getTime()
-      ) {
-        this.status.unoccupied = false;
-        return event;
+    if (!this.status.emptySchedule) {
+      for (const event of this.currentSchedule) {
+        if (
+          time.getTime() >= event.startTime.getTime() &&
+          time.getTime() < event.endTime.getTime()
+        ) {
+          this.status.unoccupied = false;
+          return event;
+        }
       }
     }
     this.status.unoccupied = true;
@@ -85,6 +98,7 @@ export class DataService {
         this.config = data;
         console.log("config", this.config);
         this.status.roomName = this.config["displayname"];
+        this.status.displayBookNow = this.config["allowbooknow"];
       },
       err => {
         setTimeout(() => {
@@ -93,6 +107,7 @@ export class DataService {
         }, 5000);
       }
     );
+    console.log(this.status);
   };
 
   getScheduleData(): void {
