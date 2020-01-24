@@ -9,6 +9,7 @@ export class RoomStatus {
   deviceName: string;
   unoccupied: boolean;
   emptySchedule: boolean;
+  displayBookNow: boolean;
 }
 
 export class OutputEvent {
@@ -44,7 +45,8 @@ export class DataService {
       roomName: "",
       deviceName: "",
       unoccupied: true,
-      emptySchedule: false
+      emptySchedule: false,
+      displayBookNow: true
     };
 
     this.getScheduleData();
@@ -91,12 +93,12 @@ export class DataService {
   getConfig = async () => {
     console.log("Getting config...");
 
-    await this.http.get(this.url + ":8033/config").subscribe(
+    await this.http.get(this.url + ":5000/config").subscribe(
       data => {
         this.config = data;
         console.log("config", this.config);
         this.status.roomName = this.config["displayname"];
-        this.status.deviceName = this.config["_id"];
+        this.status.displayBookNow = this.config["allowbooknow"];
       },
       err => {
         setTimeout(() => {
@@ -105,61 +107,79 @@ export class DataService {
         }, 5000);
       }
     );
+    console.log(this.status);
   };
 
-  getScheduleData = async () => {
-    const url = this.url + ":8033/calendar/" + this.status.deviceName;
-    console.log("Getting schedule data from: ", url);
+  getScheduleData(): void {
+    const url = this.url + ":5000/v1.0/exchange/calendar/events";
+    console.log("Getting schedule data from", url);
 
-    await this.http.get<ScheduledEvent[]>(url).subscribe(
+    this.http.get<Event[]>(url).subscribe(
       data => {
-        if (data == null) {
-          this.status.emptySchedule = true;
-        } else {
-          this.status.emptySchedule = false;
-          this.currentSchedule = data;
-          for (const event of this.currentSchedule) {
-            event.startTime = new Date(event.startTime);
-            event.endTime = new Date(event.endTime);
-          }
+        console.log("Schedule response", data);
+        const newEvents: ScheduledEvent[] = [];
+
+        // create all the events
+        for (const event of data) {
+          const e = new ScheduledEvent();
+          e.title = event.subject;
+          e.startTime = new Date(event.start);
+          e.endTime = new Date(event.end);
+
+          newEvents.push(e);
         }
-        console.log("Schedule updated")
+
+        // sort events
+        newEvents.sort((a, b) => {
+          if (a.startTime < b.startTime) {
+            return -1;
+          } else if (a.startTime > b.startTime) {
+            return 1;
+          }
+          return 0;
+        });
+
+        // replace events
+        this.currentSchedule = newEvents;
+        this.status.emptySchedule = !(this.currentSchedule.length > 0);
+
+        console.log("Schedule updated");
       },
       err => {
-        setTimeout(() => {
-          console.error("failed to get schedule data", err);
-          this.getScheduleData();
-        }, 5000);
+        console.log("Error getting Schedule", err);
       }
     );
-  };
+  }
 
-  submitNewEvent = async (event: ScheduledEvent) => {
-    const url = this.url + ":8033/calendar/" + this.status.deviceName;
-    console.log("Submitting new event to ", url);
-    const httpHeaders = {
-      headers: new HttpHeaders({
-        'Content-Type': 'application/json'
+  submitNewEvent(event: ScheduledEvent): void {
+    const req = new Event();
+    const today = new Date();
+    const tzoffset = today.getTimezoneOffset();
+
+    req.subject = event.title;
+    req.start = new Date(event.startTime.getTime() - tzoffset * 60000);
+    req.end = new Date(event.endTime.getTime() - tzoffset * 60000);
+
+    const url = this.url + ":5000/v1.0/exchange/calendar/events";
+    console.log("Posting", req, "to", url);
+
+    const resp = this.http
+      .post(url, JSON.stringify(req), {
+        headers: new HttpHeaders().set("Content-Type", "application/json")
       })
-    };
+      .subscribe(
+        response => {
+          console.log("Successfully posted event. Response: ", response);
+          this.getScheduleData();
+          location.reload();
+        },
+        err => {
+          console.log("Error posting event: ", err);
+        }
+      );
 
-    const body = new OutputEvent();
-    body.title = event.title;
-    body.startTime = moment(event.startTime).format("YYYY-MM-DDTHH:mm:ssZ");
-    body.endTime = moment(event.endTime).format("YYYY-MM-DDTHH:mm:ssZ");
-
-    await this.http.put(url, body, httpHeaders).subscribe(
-      data => {
-        console.log("Event submitted")
-        console.log(data);
-        this.getScheduleData();
-      },
-      err => {
-        setTimeout(() => {
-          console.error("failed to send event", err);
-          this.submitNewEvent(event);
-        }, 5000);
-      }
-    );
-  };
+    // setTimeout(() => {
+    //   location.reload();
+    // }, 10000);
+  }
 }
