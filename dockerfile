@@ -8,7 +8,7 @@ ENV FLASK_APP="server.py"
 RUN apk --no-cache update
 RUN apk --no-cache --virtual .build-deps add build-base libffi-dev libxml2-dev openssl-dev krb5-dev && \
     apk --no-cache add libxslt-dev openssl && \
-    pip install maya flask flask_cors flask_restplus exchangelib lxml && \
+    pip install maya flask flask_cors flask_restplus exchangelib==1.12.1 lxml && \
     apk del .build-deps
 
 # add any required files/folders here

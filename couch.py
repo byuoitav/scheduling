@@ -23,9 +23,10 @@ def getCouchDoc():
         raise Exception("SYSTEM_ID not set")
 
     url = db_addr + "/scheduling-configs/" + os.getenv("SYSTEM_ID")
+    print("using couch url: {}".format(url))
 
     # make request
-    resp = requests.get(url, auth=(db_uname, db_pass))
+    resp = requests.get(url, auth=(db_uname, db_pass), timeout=10)
     if resp.status_code != 200:
         raise Exception("failed to get couch doc: <{}> {}".format(resp.status_code, resp.text))
 
@@ -34,4 +35,5 @@ def getCouchDoc():
     del body['_id']
     del body['_rev']
 
+    print("couch body: {}".format(body))
     return body

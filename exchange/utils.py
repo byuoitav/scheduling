@@ -5,7 +5,7 @@ from exchangelib import DELEGATE, IMPERSONATION, Account, Credentials, ServiceAc
 import exchangelib
 from enum import Enum
 from flask import abort
-from couch import getCouchDoc 
+from couch import getCouchDoc
 
 account = None
 
@@ -21,16 +21,18 @@ def initAccount():
     try:
         info = getCouchDoc()
     except Exception as e:
-        raise Exception("unable to get couch doc: ".format(e))
+        raise Exception("unable to get couch doc: {}".format(e))
 
     uname = os.getenv("EXCHANGE_PROXY_USERNAME")
     pw = os.getenv("EXCHANGE_PROXY_PASSWORD")
+
+    print("creating service account with uname: {}, password: {}".format(uname, pw))
 
     credentials = ServiceAccount(username=uname, password=pw)
     try:
         resource = info["resource"]
         if not resource:
-            raise Exception("resource not set in config doc") 
+            raise Exception("resource not set in config doc")
 
         autodiscover = info["autodiscover-url"]
         if not autodiscover:
@@ -40,7 +42,7 @@ def initAccount():
         if not access:
             raise Exception("access-type not set in config doc")
     except KeyError as e:
-        raise Exception("missing key {} in config doc".format(e)) 
+        raise Exception("missing key {} in config doc".format(e))
     except Exception as e:
         raise Exception(e)
 
